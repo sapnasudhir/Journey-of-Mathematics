@@ -1,0 +1,1238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Zero Domino Road</title>
+<meta name="description" content="An interactive journey through the chain of ideas behind the numbers on your phone, from Alexander's Punjab to today.">
+<meta name="theme-color" content="#0d1130">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23ffd66b'/%3E%3Ctext x='50' y='70' text-anchor='middle' font-family='Georgia,serif' font-size='60' fill='%230d1130'%3E0%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Lexend:wght@400;500;600&family=Martian+Mono:wght@400;600&display=swap">
+<style>body{margin:0}img{max-width:100%}</style>
+<style>
+/* Layout: one column. Hero → stage (century timeline + domino chain) → Book strip → story card. The map opens as a full-screen popup when a domino falls. Single dark "night sky" theme by choice. */
+:root{
+  color-scheme: dark;
+  --night:#0d1130;
+  --night-2:#151a43;
+  --night-3:#1f2560;
+  --line:#2f3679;
+  --ink:#eef0ff;
+  --muted:#aab0d8;
+  --bone:#f6eedd;
+  --bone-2:#e3d5b8;
+  --pip:#1b1f4a;
+  --saffron:#f4a83c;
+  --saffron-deep:#c9761a;
+  --gold:#ffd66b;
+  --peacock:#36c2b1;
+  --rose:#ff7d6e;
+  --ok:#62d695;
+  --f-display:"Rozha One", Georgia, "Times New Roman", serif;
+  --f-body:"Lexend", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"Martian Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --dw:72px; --dh:142px; --gap:36px; --lean:15deg;
+  --axis:64px;
+}
+@media (max-width:600px){ :root{ --dw:32px; --dh:64px; --gap:11px; --lean:10deg; --axis:22px; } }
+
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+body{
+  background:var(--night);
+  background-image:radial-gradient(900px 520px at 90% -10%, rgba(54,194,177,.10), transparent 70%), radial-gradient(800px 600px at -10% 10%, rgba(244,168,60,.08), transparent 70%);
+  color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:0 40px;
+}
+a{color:var(--peacock)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:6px}
+button{font:inherit;color:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:1080px;margin:0 auto}
+
+/* ---------- Hero ---------- */
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:16px 0;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-size:1.1rem;display:flex;align-items:center;gap:8px}
+.brand-0{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--night);font-size:1rem;line-height:1}
+.toggles{display:flex;gap:6px}
+.tog{background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.78rem;color:var(--muted);cursor:pointer}
+.tog[aria-pressed="true"]{border-color:var(--peacock);color:var(--ink)}
+.hero{padding-block:34px 10px;display:grid;gap:14px}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--saffron);margin:0}
+.title{font-family:var(--f-display);font-weight:400;font-size:clamp(2.3rem,6.2vw,4.4rem);line-height:1.02;margin:0;text-wrap:balance;max-width:18ch}
+.title .w{display:inline-block;animation:slam .7s cubic-bezier(.2,1.3,.4,1) both}
+.title .gold{color:var(--gold)}
+@keyframes slam{0%{opacity:0;transform:translateY(-36px) scale(1.4)}100%{opacity:1;transform:none}}
+.lede{max-width:60ch;margin:0;color:var(--muted);font-size:1.08rem}
+.lede strong{color:var(--ink);font-weight:500}
+.credit{font-size:.8rem;color:var(--muted);margin:0}
+
+/* ---------- Stage: timeline + dominoes ---------- */
+.stage{margin-top:26px;background:var(--night-2);border:1px solid var(--line);border-radius:22px;padding-block:18px 14px;overflow:hidden}
+.tl-scroll{overflow-x:auto;scrollbar-width:thin}
+.timeline{position:relative;height:136px;min-width:760px;margin-inline:56px}
+.tl-axis{position:absolute;left:0;right:0;top:calc(var(--axis) - 4px);height:8px;border-radius:4px;background:var(--night-3);
+  background-image:repeating-linear-gradient(90deg, transparent 0 calc(4% - 1px), rgba(170,176,216,.25) calc(4% - 1px) 4%)}
+.tl-range{position:absolute;top:calc(var(--axis) - 5px);height:10px;border-radius:5px;background:linear-gradient(90deg,var(--saffron),var(--gold));transform-origin:left center;animation:grow .9s ease-out both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.tl-year{position:absolute;top:calc(var(--axis) + 10px);transform:translateX(-50%);font-family:var(--f-mono);font-size:.62rem;color:var(--muted);white-space:nowrap}
+.tl-ce{position:absolute;top:calc(var(--axis) - 12px);height:24px;width:2px;background:var(--muted);opacity:.5}
+.tm{position:absolute;top:0;bottom:0;width:0}
+.tm-dot{position:absolute;top:calc(var(--axis) - 12px);left:-12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+  background:var(--night);border:2px solid var(--line);font-family:var(--f-mono);font-size:.68rem;color:var(--muted);transition:background .4s,color .4s,border-color .4s;z-index:2}
+.tm-lab{position:absolute;transform:translateX(-50%);text-align:center;white-space:nowrap;line-height:1.25;background:var(--night-2);padding:1px 6px;border-radius:6px;z-index:2}
+.tm-lab b{display:block;font-size:.8rem;font-weight:600;color:var(--muted);transition:color .4s}
+.tm-lab i{font-style:normal;font-family:var(--f-mono);font-size:.6rem;color:var(--muted);opacity:.8}
+.tm.up .tm-lab{bottom:calc(100% - var(--axis) + 18px)}
+.tm.down .tm-lab{top:calc(var(--axis) + 30px)}
+.tm.lit .tm-dot{background:var(--saffron);border-color:var(--gold);color:var(--night)}
+.tm.lit .tm-lab b{color:var(--ink)}
+.tm.pop .tm-dot{animation:dotpop .7s cubic-bezier(.2,1.6,.4,1)}
+@keyframes dotpop{0%{transform:scale(.4)}100%{transform:scale(1)}}
+.tl-arc{position:absolute;left:0;top:0;width:100%;height:var(--axis);overflow:visible;pointer-events:none}
+.tl-arc path{fill:none;stroke:var(--peacock);stroke-width:2;stroke-dasharray:6 5;opacity:0}
+.tl-arc.show path{opacity:1;animation:arcdraw 1.6s ease-out both}
+@keyframes arcdraw{from{stroke-dashoffset:700}to{stroke-dashoffset:0}}
+.arc-lab{position:absolute;left:58%;top:6px;transform:translateX(-50%);font-family:var(--f-mono);font-size:.62rem;color:var(--peacock);background:var(--night-2);padding:1px 6px;border-radius:6px;opacity:0;transition:opacity .6s .9s;white-space:nowrap;z-index:3}
+.timeline.arc-on .arc-lab{opacity:1}
+
+.stage-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;margin-top:4px}
+.row{display:flex;gap:var(--gap);padding:20px 170px 6px 34px;width:max-content;margin:0 auto;align-items:flex-start}
+@media (max-width:600px){
+  .row{padding:14px 62px 4px 12px;margin:0 auto}
+  .tl-year.first{display:none}
+  .t-ch{display:none}
+  .tile .t-n{font-size:.9rem;font-family:var(--f-display)}
+  .dom-cent,.dom-bar,.dom-label{display:none}
+  .dom-face{grid-template-rows:1fr;padding:6px 3px;border-radius:6px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12), 0 3px 0 #a8956f, 0 8px 12px rgba(0,0,0,.5)}
+  .dom,.dom-face{border-radius:6px}
+  .dom-pips{padding:2px 0}
+  .pip{width:6px;height:6px}
+  .slot{gap:0}
+  .dom.ready::after{inset:-6px;border-radius:9px}
+  .stage{padding-block:12px 12px;border-radius:18px}
+  .timeline{height:46px;min-width:0;margin-inline:18px}
+  .tm-lab,.arc-lab{display:none}
+  .tm-dot{width:20px;height:20px;left:-10px;top:calc(var(--axis) - 10px);font-size:.6rem}
+  .tl-year{font-size:.56rem}
+  .hint{font-size:.88rem}
+}
+.stage.shake .row{animation:shake .45s}
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-7px,3px)}40%{transform:translate(6px,-2px)}60%{transform:translate(-3px,1px)}80%{transform:translate(2px,0)}}
+.slot{width:var(--dw);display:flex;flex-direction:column;align-items:center;gap:14px}
+.dom{width:var(--dw);height:var(--dh);border:0;padding:0;background:none;cursor:pointer;position:relative;transform-origin:100% 100%;rotate:0deg;border-radius:10px}
+.dom-face{position:absolute;inset:0;border-radius:10px;background:linear-gradient(160deg,var(--bone),var(--bone-2));
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.12), 0 6px 0 #a8956f, 0 14px 22px rgba(0,0,0,.5);
+  display:grid;grid-template-rows:1fr 2px 1fr;padding:7px 6px}
+.dom-cent{font-family:var(--f-mono);font-weight:600;font-size:calc(var(--dw) * .125);line-height:1.3;color:var(--pip);text-align:center;align-self:center}
+.dom-bar{background:#b9a684;margin-inline:3px;border-radius:2px}
+.dom-pips{display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:4px 2px}
+.pip{width:calc(var(--dw) * .14);height:calc(var(--dw) * .14);border-radius:50%;background:var(--pip);place-self:center;box-shadow:inset 0 1px 2px rgba(0,0,0,.6);transition:background .5s}
+.dom.fallen{rotate:var(--lean)}
+.dom.last.fallen{rotate:72deg}
+.dom.fallen .pip,.dom.done .pip{background:var(--saffron-deep)}
+.dom.done .dom-face{box-shadow:inset 0 -3px 0 rgba(0,0,0,.12), 0 6px 0 #a8956f, 0 0 0 2px var(--gold), 0 0 26px rgba(255,214,107,.45)}
+.dom.ready::after{content:"";position:absolute;inset:-9px;border-radius:15px;border:2px solid var(--saffron);animation:pulse 1.5s ease-in-out infinite;pointer-events:none}
+@keyframes pulse{0%,100%{opacity:.25;transform:scale(.97)}50%{opacity:1;transform:scale(1.03)}}
+.dom.pushing{animation:push 1.1s both}
+.dom.last.pushing{animation:pushLast 1.3s both}
+@keyframes push{0%{rotate:0deg}12%{rotate:-5deg}26%{rotate:3deg}40%{rotate:-2deg;animation-timing-function:cubic-bezier(.5,0,1,.6)}80%{rotate:calc(var(--lean) + 7deg)}90%{rotate:calc(var(--lean) - 3deg)}100%{rotate:var(--lean)}}
+@keyframes pushLast{0%{rotate:0deg}12%{rotate:-5deg}26%{rotate:3deg}40%{rotate:-2deg;animation-timing-function:cubic-bezier(.5,0,1,.6)}84%{rotate:77deg}93%{rotate:69deg}100%{rotate:72deg}}
+.dom.bumped{animation:bumped .6s ease-out}
+@keyframes bumped{0%{rotate:0deg}35%{rotate:6deg}70%{rotate:-1.5deg}100%{rotate:0deg}}
+.dom.stuck{animation:stuck 1.2s ease-in-out}
+@keyframes stuck{0%,100%{rotate:0deg}15%{rotate:11deg}30%{rotate:-2deg}45%{rotate:9deg}60%{rotate:-1deg}75%{rotate:5deg}}
+.dom.nudge{animation:nudge .5s}
+@keyframes nudge{0%,100%{rotate:0deg}30%{rotate:-4deg}60%{rotate:3deg}}
+.row.rewinding .dom{transition:rotate .75s cubic-bezier(.3,1.5,.5,1)}
+.dom-label{font-size:.74rem;line-height:1.25;text-align:center;width:calc(var(--dw) + var(--gap) - 6px);color:var(--muted);font-weight:600}
+.slot.current .dom-label{color:var(--gold)}
+.hint{text-align:center;color:var(--muted);margin:8px 16px 0;font-size:.95rem;min-height:1.5em}
+.hint b{color:var(--gold);font-weight:600}
+
+/* ---------- Book strip ---------- */
+.book{margin-top:22px;transition:filter 1s}
+.book-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.book-head h2{font-family:var(--f-display);font-weight:400;font-size:1.5rem;margin:0;line-height:1.1}
+.book-head p{margin:0;color:var(--muted);font-size:.88rem}
+.tiles{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;perspective:700px}
+@media (max-width:600px){
+  .tiles{grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+  .tile{min-height:46px;padding:6px 2px;align-items:center;justify-content:center;border-radius:9px}
+  .tile b{display:none}
+  .book-head h2{font-size:1.25rem}
+}
+.book-latest{margin:8px 0 0;font-size:.86rem;color:var(--muted)}
+.book-latest b{color:var(--gold);font-weight:600}
+.tile{border-radius:12px;padding:10px 10px 12px;min-height:92px;display:flex;flex-direction:column;gap:4px;border:1.5px dashed var(--line);background:transparent;transition:background .5s, border-color .5s, filter .6s}
+.tile .t-n{font-family:var(--f-mono);font-size:.62rem;color:var(--muted)}
+.tile b{font-size:.84rem;line-height:1.25;font-weight:600;color:var(--muted)}
+.tile.lit{border:1.5px solid var(--gold);background:linear-gradient(150deg, var(--saffron), var(--saffron-deep))}
+.tile.lit .t-n{color:#3b2106}
+.tile.lit b{color:#1d1104}
+.tile.grey{border:1.5px solid var(--line);background:#3a3d55;filter:grayscale(1)}
+.tile.grey b{color:#9da0b4}
+.tile.flip{animation:flip .8s cubic-bezier(.3,1.3,.5,1)}
+@keyframes flip{0%{transform:rotateY(90deg) scale(.9)}100%{transform:rotateY(0) scale(1)}}
+
+/* ---------- Story card ---------- */
+.card{margin-top:22px;background:var(--night-2);border:1px solid var(--line);border-radius:22px;padding:clamp(18px,3.4vw,34px);scroll-margin-top:16px}
+.card.enter{animation:cardIn .6s cubic-bezier(.2,.9,.3,1)}
+@keyframes cardIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.card h2{font-family:var(--f-display);font-weight:400;font-size:clamp(1.9rem,3.8vw,2.7rem);line-height:1.06;margin:.15em 0 0;text-wrap:balance}
+.card h3{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--saffron);margin:0 0 10px;font-weight:600}
+.cent{color:var(--gold)}
+.burst{height:170px;display:grid;place-items:center;margin:18px 0 4px;perspective:600px;background:radial-gradient(closest-side, rgba(244,168,60,.18), transparent)}
+.burst svg{max-width:100%;height:170px}
+.burst-cap{font-size:.86rem;color:var(--muted);text-align:center;margin:0 0 8px}
+.people{display:grid;gap:16px 22px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:22px 0}
+.person{display:grid;grid-template-columns:58px minmax(0,1fr);gap:12px;align-items:start}
+.person svg{width:58px;height:58px;display:block}
+.person h4{margin:0;font-size:1rem;font-weight:600;line-height:1.3}
+.person .dates{font-family:var(--f-mono);font-size:.66rem;color:var(--saffron);margin:2px 0 4px}
+.person p{margin:0;font-size:.88rem;color:var(--muted);line-height:1.45}
+.person a{font-size:.8rem}
+.story p{max-width:64ch;margin:0 0 .9em}
+.story strong{color:var(--gold);font-weight:600}
+.rules{list-style:none;padding:0;margin:0 0 .9em;display:grid;gap:6px;max-width:44ch}
+.rules li{font-family:var(--f-mono);font-size:.8rem;background:var(--night-3);border-radius:10px;padding:8px 12px}
+.why{margin:20px 0}
+.why h3{color:var(--peacock)}
+.why p{max-width:64ch;margin:0 0 .7em}
+.whoa{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;border-radius:14px;padding:12px 16px;margin:16px 0;background:rgba(255,214,107,.07);border:1px dashed rgba(255,214,107,.5)}
+.whoa .tag{font-family:var(--f-display);color:var(--gold);font-size:1.35rem;line-height:1.1;transform:rotate(-6deg)}
+.whoa p{margin:0}
+.hist{font-size:.88rem;color:var(--muted);max-width:64ch;margin:10px 0 0}
+.hist b{color:var(--peacock);font-weight:600}
+.toy{background:var(--night-3);border-radius:16px;padding:16px;margin:18px 0}
+.toy-title{font-weight:600;margin:0 0 4px}
+.pv-slots{display:flex;gap:10px;justify-content:center;margin-top:12px}
+.pv{display:grid;gap:6px;justify-items:center}
+.pv button{width:64px;height:78px;border-radius:12px;border:2px solid var(--line);background:var(--night);font-family:var(--f-display);font-size:2.4rem;color:var(--ink);cursor:pointer;transition:border-color .2s, transform .15s}
+.pv button:hover{border-color:var(--saffron)}
+.pv button:active{transform:scale(.94)}
+.pv button.zero{color:var(--gold);border-color:var(--gold);box-shadow:0 0 18px rgba(255,214,107,.35)}
+.pv span{font-family:var(--f-mono);font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.pv-out{text-align:center;margin:12px 0 0;font-size:.95rem}
+.pv-out b{color:var(--gold);font-weight:600}
+.challenge{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.qnum{font-family:var(--f-mono);font-size:.68rem;color:var(--muted);margin:0 0 4px}
+.qtext{font-weight:500;margin:0 0 12px;font-size:1.04rem;max-width:62ch}
+.eq{font-family:var(--f-mono);background:var(--night);padding:2px 8px;border-radius:6px;color:var(--gold)}
+.opts{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.opt{background:var(--night-3);border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;cursor:pointer;line-height:1.35;transition:border-color .2s, background .2s}
+.opt:hover:not(:disabled){border-color:var(--saffron)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok);background:rgba(98,214,149,.15)}
+.opt.wrong{border-color:var(--rose);background:rgba(255,125,110,.10);animation:shakeX .4s}
+@keyframes shakeX{0%,100%{transform:none}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.feedback{margin-top:12px;font-size:.94rem;min-height:1.2em}
+.feedback .good{color:var(--ok);font-weight:600}
+.feedback .bad{color:var(--rose);font-weight:600}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{background:var(--saffron);color:#211304;border:0;border-radius:999px;padding:10px 18px;font-weight:600;cursor:pointer;transition:transform .15s, background .2s}
+.btn:hover{background:var(--gold)}
+.btn:active{transform:scale(.96)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--saffron);background:transparent}
+.btn.small{padding:7px 14px;font-size:.85rem}
+.solved{color:var(--ok);margin:0;font-weight:600}
+.scale-svg{width:100%;max-width:420px;height:auto;display:block;margin:4px auto 10px}
+.scale-svg .beamg,.scale-svg .blk{transform-box:view-box;transition:transform .7s cubic-bezier(.3,1.4,.5,1), opacity .5s}
+.scale-svg .beamg{transform-origin:160px 68px}
+.final-book{margin:6px 0 16px}
+.final-book .tiles{grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.final-book .tile{min-height:58px;padding:6px 6px 8px}
+.final-book .tile b{font-size:.7rem}
+@media (max-width:600px){ .final-book .tile b{display:none} .final-book .tile{min-height:40px;align-items:center;justify-content:center} }
+.earned{margin-top:22px;border-radius:16px;padding:14px 16px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  background:linear-gradient(120deg, rgba(244,168,60,.22), rgba(255,214,107,.08));border:1px solid rgba(255,214,107,.45)}
+.earned .et{font-family:var(--f-display);font-size:1.4rem;margin:0;line-height:1.15}
+.howto{margin:16px 0;padding-left:1.3em;display:grid;gap:6px;max-width:60ch}
+
+/* ---------- Map popup ---------- */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(6,8,26,.9);display:grid;place-items:center;
+  padding:max(14px, env(safe-area-inset-top,0px)) max(14px, env(safe-area-inset-right,0px)) max(14px, env(safe-area-inset-bottom,0px)) max(14px, env(safe-area-inset-left,0px))}
+.modal-card{width:min(1120px,100%);max-height:100%;overflow:auto;background:var(--night-2);border:1px solid var(--line);border-radius:22px;padding:clamp(14px,2.4vw,24px);animation:zoomIn .5s cubic-bezier(.2,1.1,.3,1) both}
+@keyframes zoomIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.modal-head h2{font-family:var(--f-display);font-weight:400;font-size:clamp(1.4rem,3vw,2rem);margin:2px 0 0;line-height:1.1}
+.xbtn{background:var(--night-3);border:1px solid var(--line);border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:1.2rem;line-height:1;flex:none}
+#map{width:100%;height:auto;display:block;margin-top:10px;border-radius:14px;background:var(--night)}
+.map-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.map-cap{margin:0;color:var(--muted);font-size:.95rem}
+.map-cap b{color:var(--ink);font-weight:500}
+.map-foot .btn.ready{animation:btnpulse 1.4s ease-in-out infinite}
+@keyframes btnpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,214,107,.6)}50%{box-shadow:0 0 0 10px rgba(255,214,107,0)}}
+.grat{stroke:rgba(170,176,216,.09);stroke-width:1}
+.star{fill:#fff}
+.region{fill:rgba(170,176,216,.32);font-family:var(--f-mono);font-size:18px;letter-spacing:.22em}
+.region.sea{fill:rgba(54,194,177,.38)}
+.city .dot{fill:var(--muted);opacity:.3;transition:fill .5s,opacity .5s}
+.city.visited .dot{fill:var(--saffron);opacity:1}
+.city .halo{fill:none;stroke:var(--gold);stroke-width:3;opacity:0;transform-box:fill-box;transform-origin:center}
+.city.active .halo{animation:halo 1.8s ease-out infinite}
+@keyframes halo{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(1.7)}}
+.city text{fill:var(--ink);font-family:var(--f-body);font-size:27px;font-weight:500;opacity:0;transition:opacity .5s;paint-order:stroke;stroke:var(--night);stroke-width:7px;stroke-linejoin:round}
+.city.labeled text{opacity:1}
+.route{fill:none;stroke:var(--saffron);stroke-width:5;stroke-linecap:round}
+.route.side{stroke:var(--peacock);stroke-width:4}
+#map.all-glow .route{stroke:var(--gold);filter:url(#glow)}
+@media (max-width:700px){
+  .modal{padding:max(8px, env(safe-area-inset-top,0px)) max(8px, env(safe-area-inset-right,0px)) max(8px, env(safe-area-inset-bottom,0px)) max(8px, env(safe-area-inset-left,0px))}
+  .modal-card{padding:14px;border-radius:18px}
+  .city text{font-size:18px;stroke-width:5px}
+  .region{font-size:13px}
+  .map-foot .btn{width:100%}
+}
+#map.all-glow .city.visited .dot{animation:twinkle 1.6s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.45}}
+.spark-glow{fill:var(--gold);opacity:.35}
+.spark-core{fill:#fff}
+
+/* Footer, toast, badge */
+.foot{margin-top:44px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:.86rem;display:grid;gap:18px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.foot h3{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--saffron);margin:0 0 8px;font-weight:600}
+.foot ul{margin:0;padding-left:1.1em;display:grid;gap:4px}
+.foot p{margin:0 0 10px}
+@media (max-width:760px){ .foot{grid-template-columns:minmax(0,1fr)} }
+.toast{pointer-events:none;position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);background:var(--gold);color:#241604;font-weight:600;
+  padding:10px 18px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.45);z-index:60;transition:transform .35s cubic-bezier(.2,1.2,.4,1);max-width:calc(100vw - 32px);text-align:center;font-size:.92rem}
+.toast{opacity:0;visibility:hidden}
+.toast.show{transform:translate(-50%,0);opacity:1;visibility:visible}
+.badge-card{background:var(--night-2);border:1px solid var(--gold);border-radius:22px;padding:28px 24px;max-width:440px;width:100%;text-align:center;animation:zoomIn .6s both}
+.badge-card svg{width:170px;height:170px;animation:badgeSpin 1.6s cubic-bezier(.2,.9,.3,1) both}
+@keyframes badgeSpin{0%{transform:scale(.2) rotateY(0)}70%{transform:scale(1.08) rotateY(720deg)}100%{transform:scale(1) rotateY(720deg)}}
+.badge-card h2{font-family:var(--f-display);font-weight:400;font-size:2.1rem;margin:10px 0 6px;color:var(--gold)}
+.badge-card p{color:var(--muted);margin:0 0 16px}
+.badge-card .actions{justify-content:center}
+
+/* ---------- Burst animations ---------- */
+.coin-spin{animation:coinflip 2.4s cubic-bezier(.2,.75,.25,1) both;transform-style:preserve-3d}
+@keyframes coinflip{0%{transform:scale(.2) rotateY(0)}65%{transform:scale(1.12) rotateY(720deg)}100%{transform:scale(1) rotateY(720deg)}}
+.b-boat{animation:sail 3.4s ease-in-out both}
+@keyframes sail{0%{transform:translateX(0)}100%{transform:translateX(-170px)}}
+.b-wind{animation:windflash 1.1s ease-in-out infinite}
+.b-wind:nth-child(2){animation-delay:.2s}.b-wind:nth-child(3){animation-delay:.4s}
+@keyframes windflash{0%,100%{opacity:.25;transform:translateX(0)}50%{opacity:1;transform:translateX(-12px)}}
+.b-zero{transform-box:fill-box;transform-origin:center;animation:pop .9s .7s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.b-ring{transform-box:fill-box;transform-origin:center;animation:ring 1.8s 1s ease-out infinite;opacity:0}
+.b-ring.r2{animation-delay:1.6s}
+@keyframes ring{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.2);opacity:0}}
+.b-empty{animation:emptyglow 1.4s ease-in-out both}
+@keyframes emptyglow{0%{stroke-opacity:.2}50%{stroke-opacity:1}100%{stroke-opacity:.6}}
+.b-beam{transform-box:view-box;transform-origin:150px 62px;animation:level 2.4s both}
+@keyframes level{0%{transform:rotate(10deg)}45%{transform:rotate(10deg)}72%{transform:rotate(-3deg)}88%{transform:rotate(1deg)}100%{transform:rotate(0deg)}}
+.b-xdrop{animation:dropx 2.4s both}
+@keyframes dropx{0%{transform:translateY(-80px);opacity:0}25%{opacity:1;transform:translateY(-80px)}45%{transform:translateY(0)}100%{transform:translateY(0)}}
+.seed{transform-box:fill-box;transform-origin:center;animation:pop .45s both}
+.b-seq{animation:fadein .6s both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.pline{stroke-dasharray:220;stroke-dashoffset:220;animation:draw 1s ease-out both}
+@keyframes draw{to{stroke-dashoffset:0}}
+.b-jup{transform-box:fill-box;transform-origin:center;animation:pop .8s 1.3s cubic-bezier(.2,1.5,.4,1) both}
+.moon{animation:osc ease-in-out infinite alternate}
+@keyframes osc{from{transform:translateX(calc(var(--r) * -1))}to{transform:translateX(var(--r))}}
+.b-moons{animation:fadein .6s 1.8s both}
+.b-fade{animation:fadegray 2.6s both}
+@keyframes fadegray{0%{filter:none;opacity:1}70%{filter:grayscale(1) brightness(.6);opacity:.75}100%{filter:grayscale(1) brightness(.6);opacity:.75}}
+.b-q{animation:pop .6s both}
+.b-rn{transform-box:fill-box;transform-origin:center bottom;animation:rnbounce 1.1s ease-in-out infinite}
+@keyframes rnbounce{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-10px) rotate(-6deg)}60%{transform:translateY(0) rotate(4deg)}}
+.b-spark{transform-box:fill-box;transform-origin:center;animation:twinkle2 1.8s ease-in-out infinite}
+@keyframes twinkle2{0%,100%{opacity:.2;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}
+
+.calm *, .calm *::before, .calm *::after{animation-duration:.001ms !important;animation-delay:0s !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{animation-duration:.001ms !important;animation-delay:0s !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+}
+</style>
+</head>
+<body>
+
+<main class="wrap" id="main">
+  <div class="bar" id="topbar">
+    <div class="brand"><span class="brand-0">0</span>Zero Domino Road</div>
+    <div class="toggles">
+      <button class="tog" id="soundBtn" aria-pressed="true">Sound on</button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <p class="eyebrow">From Alexander's Punjab to your phone · 4th century BCE to today</p>
+    <h1 class="title"><span class="w" style="animation-delay:.05s">The</span> <span class="w" style="animation-delay:.15s">chain</span> <span class="w" style="animation-delay:.25s">of</span> <span class="w" style="animation-delay:.35s">ideas</span> <span class="w" style="animation-delay:.45s">behind</span> <span class="w" style="animation-delay:.55s">the</span> <span class="w gold" style="animation-delay:.75s">numbers</span> <span class="w gold" style="animation-delay:.85s">on</span> <span class="w gold" style="animation-delay:.95s">your</span> <span class="w gold" style="animation-delay:1.05s">phone</span></h1>
+    <p class="lede">Every 0 to 9 on your keypad traveled more than 2,000 years to reach you. The chain starts in 326 BCE, when Alexander the Great reaches Punjab. <strong>Push the seven dominoes</strong>, watch each idea fly across the map, and solve a challenge to add a chapter to the <strong>Book of Mathematics</strong>.</p>
+    <p class="credit">Based on historian William Dalrymple's conversation on Al Jazeera's <em>Déjà Vu</em> and his book <em>The Golden Road</em>.</p>
+  </section>
+
+  <section class="stage" id="stage" aria-label="Timeline and the seven dominoes">
+    <div class="tl-scroll"><div class="timeline" id="timeline"></div></div>
+    <div class="stage-scroll" id="stageScroll"><div class="row" id="row"></div></div>
+    <p class="hint" id="hint"></p>
+  </section>
+
+  <section class="book" id="book" aria-label="The Book of Mathematics">
+    <div class="book-head"><h2>The Book of Mathematics</h2><p id="bookCount">0 of 7 chapters</p></div>
+    <ol class="tiles" id="tiles"></ol>
+    <p class="book-latest" id="bookLatest"></p>
+  </section>
+
+  <article class="card" id="card" aria-live="polite"></article>
+
+  <footer class="foot">
+    <div>
+      <h3>Sources and further reading</h3>
+      <ul>
+        <li><a href="https://www.youtube.com/watch?v=z0l8Dm5f2pY" target="_blank" rel="noopener">Was ancient India the world's forgotten superpower? William Dalrymple on Al Jazeera's Déjà Vu</a></li>
+        <li>William Dalrymple, <em>The Golden Road: How Ancient India Transformed the World</em> (2024)</li>
+        <li><a href="https://en.wikipedia.org/wiki/Hindu%E2%80%93Arabic_numeral_system" target="_blank" rel="noopener">The Hindu–Arabic numeral system</a> · <a href="https://en.wikipedia.org/wiki/Liber_Abaci" target="_blank" rel="noopener">Liber Abaci</a> · <a href="https://en.wikipedia.org/wiki/The_Compendious_Book_on_Calculation_by_Completion_and_Balancing" target="_blank" rel="noopener">al-Khwarizmi's al-Jabr</a></li>
+        <li><a href="https://en.wikipedia.org/wiki/Fibonacci_sequence#History" target="_blank" rel="noopener">The Fibonacci sequence in Indian poetry</a> · <a href="https://en.wikipedia.org/wiki/Bakhshali_manuscript" target="_blank" rel="noopener">The Bakhshali manuscript and early zeros</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>About the pictures</h3>
+      <p>The portraits are original illustrations. Nobody knows what Aryabhata, Brahmagupta or Jafar really looked like, so every picture of them is imagined. Use the "See the real thing" links to visit statues, coins and paintings.</p>
+      <button class="btn ghost small" id="resetBtn">Start over</button>
+    </div>
+  </footer>
+</main>
+
+<div class="modal" id="mapModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
+    <div class="modal-head">
+      <div><p class="eyebrow" id="mapEyebrow">The road of ideas</p><h2 id="mapTitle">The idea travels</h2></div>
+      <button class="xbtn" id="mapX" aria-label="Close map">×</button>
+    </div>
+    <svg id="map" viewBox="0 0 1000 510" role="img" aria-label="Star map of the route the ideas traveled, from Greece and India to Baghdad and Italy"></svg>
+    <div class="map-foot">
+      <p class="map-cap" id="mapCap"></p>
+      <button class="btn" id="mapGo">Read the story</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="modal" id="badgeWrap" hidden>
+  <div class="badge-card" role="dialog" aria-modal="true" aria-labelledby="badgeTitle">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="92" fill="#c9761a"/>
+      <circle cx="100" cy="100" r="80" fill="#f4a83c" stroke="#ffd66b" stroke-width="4" stroke-dasharray="6 6"/>
+      <circle cx="100" cy="100" r="58" fill="#151a43"/>
+      <text x="100" y="128" text-anchor="middle" font-family="Rozha One, Georgia, serif" font-size="84" fill="#ffd66b">0</text>
+      <path d="M100 8 l6 14 h-12 z M100 192 l6 -14 h-12 z M8 100 l14 6 v-12 z M192 100 l-14 6 v-12 z" fill="#ffd66b"/>
+    </svg>
+    <h2 id="badgeTitle">Keeper of Zero</h2>
+    <p>You followed the chain from Aristotle to the numbers on your phone and relit every page of the Book. Now tell someone the story!</p>
+    <div class="actions">
+      <button class="btn" id="badgeClose">Back to the road</button>
+      <button class="btn ghost" id="badgeAgain">Play again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const root = document.documentElement;
+const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+let calm = reduced, soundOn = true, busy = false, uid = 0, current = -1, relit = 0, runToken = 0;
+
+/* ---------------- Portraits ---------------- */
+const LOOK = {
+  aristotle:{skin:'#e8c3a0',hair:'#d9d4cc',hairStyle:'curly',beard:'full',beardC:'#d9d4cc',robe:'#cdb894',bg:'#2a3170'},
+  alexander:{skin:'#eec8a3',hair:'#c79443',hairStyle:'curly',hat:'helmet',hatC:'#e3b44c',crest:'#c8402f',robe:'#6a3d9a',bg:'#2a3170'},
+  porus:{skin:'#b37c56',hair:'#1d1a1c',beard:'full',beardC:'#1d1a1c',hat:'crown',hatC:'#f0a63a',robe:'#2fa898',bg:'#2a3170'},
+  sailor:{skin:'#946243',beard:'short',beardC:'#1d1a1c',hat:'scarf',hatC:'#e2673a',robe:'#e9e0cf',bg:'#1f4a6b'},
+  indogreek:{skin:'#d9a982',hair:'#4a3121',hairStyle:'short',hat:'diadem',hatC:'#f3eee4',robe:'#3d63b8',bg:'#1f4a6b'},
+  aryabhata:{skin:'#a8714c',hair:'#1d1a1c',hairStyle:'bun',robe:'#f2a33a',shawl:'#c9461f',bg:'#33276b'},
+  brahmagupta:{skin:'#b07650',beard:'short',beardC:'#1d1a1c',hat:'turban',hatC:'#f3eee4',robe:'#3a7bd5',bg:'#33276b'},
+  jafar:{skin:'#c68e62',beard:'short',beardC:'#231c1a',hat:'turban',hatC:'#f3eee4',robe:'#2b8f84',bg:'#173f4f'},
+  khwarizmi:{skin:'#c99068',beard:'long',beardC:'#5b5552',hat:'turban',hatC:'#e7d4a8',robe:'#b5562e',bg:'#173f4f'},
+  fibonacci:{skin:'#ebc6a3',hair:'#6b4426',hairStyle:'short',hat:'cap',hatC:'#b3322e',robe:'#3f5ba9',bg:'#3a2a5c'},
+  robert:{skin:'#efcbaa',hair:'#a36a35',hairStyle:'tonsure',robe:'#5b4a3a',bg:'#3a2a5c'},
+  piero:{skin:'#e8c29e',hair:'#4a3121',hairStyle:'short',hat:'cap',hatC:'#c8462f',robe:'#2f6f5e',bg:'#2d3a6e'},
+  leonardo:{skin:'#e6be98',hair:'#d9d4cc',hairStyle:'long',beard:'long',beardC:'#d9d4cc',hat:'beret',hatC:'#3b3b4f',robe:'#8c5a3c',bg:'#2d3a6e'},
+  galileo:{skin:'#e9c3a0',hair:'#8a4f27',hairStyle:'short',beard:'full',beardC:'#8a4f27',robe:'#24242c',collar:'#f3eee4',bg:'#2d3a6e'},
+  macaulay:{skin:'#f0cdb0',hair:'#3a2a20',hairStyle:'short',robe:'#22222a',collar:'#f3eee4',bg:'#3a3a48'},
+  you:{gold:true,bg:'#3a2f12'}
+};
+function portrait(o){
+  const id = 'pc' + (++uid);
+  const frame = `<circle cx="50" cy="50" r="47" fill="${o.bg}" stroke="#e7b94f" stroke-width="3"/><clipPath id="${id}"><circle cx="50" cy="50" r="44"/></clipPath>`;
+  if (o.gold){
+    return `<svg viewBox="0 0 100 100" aria-hidden="true">${frame}<g clip-path="url(#${id})"><path d="M12 106 C14 82 30 72 50 72 C70 72 86 82 88 106 Z" fill="#f4c64e"/><ellipse cx="50" cy="46" rx="17" ry="20" fill="#f4c64e"/><text x="50" y="56" text-anchor="middle" font-family="Rozha One, Georgia, serif" font-size="26" fill="#3a2f12">0</text></g></svg>`;
+  }
+  const s = o.skin, h = o.hair || '#1d1a1c', b = o.beardC || h;
+  let back = '', top = '', beard = '', hat = '', shawl = '', collar = '';
+  if (o.hairStyle === 'long') back = `<path d="M30 40 C25 64 30 84 50 86 C70 84 75 64 70 40 Z" fill="${h}"/>`;
+  if (o.hairStyle === 'bun') back = `<circle cx="50" cy="23" r="9" fill="${h}"/>`;
+  if (['short','long','bun'].includes(o.hairStyle)) top = `<path d="M32 44 C30 23 70 23 68 44 C64 33 36 33 32 44 Z" fill="${h}"/>`;
+  if (o.hairStyle === 'curly') top = `<g fill="${h}">` + [[34,39],[39,31],[46,28],[54,28],[61,31],[66,39]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="6.5"/>`).join('') + `</g>`;
+  if (o.hairStyle === 'tonsure') top = `<path d="M32 47 C31 37 34 32 38 30 L39 41 Z M68 47 C69 37 66 32 62 30 L61 41 Z" fill="${h}"/>`;
+  if (o.beard === 'full') beard = `<path d="M33 48 C33 68 42 75 50 75 C58 75 67 68 67 48 C63 58 57 60 50 60 C43 60 37 58 33 48 Z" fill="${b}"/>`;
+  if (o.beard === 'short') beard = `<path d="M35 52 C36 66 44 70 50 70 C56 70 64 66 65 52 C60 60 56 61 50 61 C44 61 40 60 35 52 Z" fill="${b}"/>`;
+  if (o.beard === 'long') beard = `<path d="M33 48 C32 72 42 88 50 90 C58 88 68 72 67 48 C63 58 57 60 50 60 C43 60 37 58 33 48 Z" fill="${b}"/>`;
+  const mouthC = o.beard ? '#f2d3bd' : '#7a3b2e';
+  const mustache = o.beard ? `<path d="M42 56 C46 52.5 54 52.5 58 56 C54 54.5 46 54.5 42 56 Z" fill="${b}"/>` : '';
+  if (o.hat === 'helmet') hat = `<path d="M30 46 C28 20 72 20 70 46 L66 42 C62 30 38 30 34 42 Z" fill="${o.hatC}"/><path d="M44 25 C46 8 66 6 77 18 C64 14 56 17 54 27 Z" fill="${o.crest}"/>`;
+  if (o.hat === 'crown') hat = `<ellipse cx="50" cy="30" rx="22" ry="12" fill="${o.hatC}"/><path d="M30 37 C36 27 64 27 70 37" stroke="rgba(0,0,0,.18)" stroke-width="2.5" fill="none"/><circle cx="50" cy="31" r="4.2" fill="#ffd66b" stroke="#c9761a" stroke-width="1.2"/><path d="M50 27 C52 18 58 13 61 11" stroke="#ffd66b" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+  if (o.hat === 'turban') hat = `<ellipse cx="50" cy="30" rx="21" ry="12" fill="${o.hatC}"/><path d="M31 36 C40 26 60 26 69 36" stroke="rgba(0,0,0,.14)" stroke-width="2" fill="none"/><path d="M33 30 C42 21 60 21 67 29" stroke="rgba(0,0,0,.12)" stroke-width="2" fill="none"/>`;
+  if (o.hat === 'scarf') hat = `<path d="M30 46 C26 20 74 20 70 46 L70 53 C66 38 34 38 30 53 Z" fill="${o.hatC}"/>`;
+  if (o.hat === 'diadem') hat = `<rect x="32" y="34" width="36" height="4" rx="2" fill="${o.hatC}"/><path d="M68 36 l9 9 l-6 2 Z" fill="${o.hatC}"/>`;
+  if (o.hat === 'cap') hat = `<path d="M31 40 C30 15 70 15 69 40 Z" fill="${o.hatC}"/><rect x="29" y="36" width="42" height="7" rx="3.5" fill="${o.hatC}"/><rect x="29" y="36" width="42" height="7" rx="3.5" fill="rgba(0,0,0,.15)"/>`;
+  if (o.hat === 'beret') hat = `<path d="M28 37 C29 21 71 19 73 33 C73 39 30 41 28 37 Z" fill="${o.hatC}"/>`;
+  if (o.shawl) shawl = `<path d="M12 106 C16 86 28 76 40 74 L66 106 Z" fill="${o.shawl}"/>`;
+  if (o.collar) collar = `<path d="M38 72 L50 83 L62 72 L57 70 L50 77 L43 70 Z" fill="${o.collar}"/>`;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">${frame}<g clip-path="url(#${id})">${back}
+    <path d="M12 106 C14 82 30 72 50 72 C70 72 86 82 88 106 Z" fill="${o.robe}"/>${shawl}
+    <rect x="44" y="58" width="12" height="16" rx="5" fill="${s}"/>${collar}
+    <ellipse cx="33" cy="48" rx="3" ry="5" fill="${s}"/><ellipse cx="67" cy="48" rx="3" ry="5" fill="${s}"/>
+    <ellipse cx="50" cy="46" rx="17" ry="20" fill="${s}"/>${top}${beard}
+    <ellipse cx="43" cy="47" rx="2" ry="2.5" fill="#1a1a22"/><ellipse cx="57" cy="47" rx="2" ry="2.5" fill="#1a1a22"/>
+    <path d="M39 42.5 q4 -2.2 8 0 M53 42.5 q4 -2.2 8 0" stroke="${o.hair ? h : b}" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".9"/>
+    <path d="M50 49 q-2.5 5 1 6" stroke="rgba(60,30,20,.45)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <path d="M45 58 q5 3 10 0" stroke="${mouthC}" stroke-width="1.7" fill="none" stroke-linecap="round"/>${mustache}${hat}</g></svg>`;
+}
+
+/* ---------------- Content ---------------- */
+const W = 'https://en.wikipedia.org/wiki/';
+const D = [
+{ short:'Greek Spark', title:'The Greek Spark', century:'4th century BCE', face:['4th c.','BCE'], range:[-4,-4], side:'up',
+  route:['pella','hydaspes'], sides:[], cap:'Pella, Macedonia → Hydaspes River, Punjab',
+  burst:'coin', burstCap:'Alexander\'s "elephant coin": a Greek horseman charges King Porus on his war elephant.',
+  people:[
+    {k:'aristotle', name:'Aristotle', dates:'384–322 BCE', line:'A Greek thinker who wanted to understand everything: animals, stars, poems, and how to argue well.', link:W+'Aristotle', lt:'See his marble bust'},
+    {k:'alexander', name:'Alexander the Great', dates:'356–323 BCE', line:'Aristotle\'s student. He led an army from Greece all the way to the rivers of Punjab.', link:W+'Alexander_the_Great', lt:'See the Alexander Mosaic'},
+    {k:'porus', name:'King Porus', dates:'ruled around 326 BCE', line:'A Punjabi king who fought Alexander from the backs of war elephants.', link:W+'Elephant_medallions', lt:'See the real coin'}
+  ],
+  story:`<p>In 343 BCE, a 13-year-old prince named Alexander got a famous teacher: <strong>Aristotle</strong>. Aristotle taught him to ask questions about everything and to prove answers one careful step at a time. That way of thinking is called logic.</p>
+  <p>In 326 BCE, Alexander and his army reached the Hydaspes River in Punjab. King <strong>Porus</strong> met them with war elephants. Porus lost the battle, but he fought so bravely that Alexander gave him his kingdom back and made him an ally. Alexander even made coins showing the fight.</p>
+  <p>Alexander's tired soldiers refused to march any further, so he turned back. But a door between the Greek world and the Indian world was now open.</p>`,
+  whoa:'Alexander was 13, about the age of a 7th grader, when Aristotle became his teacher. He was only 30 when he reached Punjab.',
+  challenge:{type:'quiz', qs:[
+    {q:'Aristotle\'s logic test: "All war elephants are animals. Porus rides a war elephant." So Porus rides…', o:['an animal','a horse','we can\'t tell'], a:0,
+     ex:'Two true statements lead to a third one that must be true. Aristotle called this a syllogism.'}]},
+  chapter:{t:'How to Think', d:'Logic: prove ideas one careful step at a time.'} },
+
+{ short:'Open Door', title:'The Open Door', century:'3rd century BCE – 4th century CE', face:['3rd BCE','to 4th CE'], range:[-3,4], side:'down',
+  route:['muziris','aden','berenike','alexandria','rome'], sides:[], cap:'The monsoon route: Kerala → Red Sea → Berenike → Alexandria → Rome',
+  burst:'monsoon', burstCap:'Ride the monsoon wind and a ship sails from India to Egypt in about six weeks.',
+  people:[
+    {k:'indogreek', name:'Indo-Greek kings', dates:'2nd–1st century BCE', line:'Greek rulers in northwest India who mixed Greek and Indian ideas and put both languages on their coins.', link:W+'Indo-Greek_Kingdom', lt:'See their coins'},
+    {k:'sailor', name:'Monsoon sailors', dates:'1st century CE', line:'Sailors who learned to ride the monsoon winds across the Arabian Sea between India and Egypt.', link:W+'Muziris', lt:'Visit ancient Muziris'}
+  ],
+  story:`<p>After Alexander, Greek kings ruled parts of northwest India for about 200 years. Ideas from Greece, Babylon, Persia and Egypt flowed in. Indian thinkers borrowed the best of them, then made them better. As Dalrymple puts it, India's great math didn't come out of thin air.</p>
+  <p>Meanwhile, Indian sailors learned the secret of the <strong>monsoon</strong>. For about six months the wind blows away from India, and for the other six it blows back. Ride it, and a ship could sail from Kerala or Gujarat to Egypt in about six weeks.</p>
+  <p>From the Red Sea, goods crossed the desert to the Nile, sailed to Alexandria and went on to Rome. Romans couldn't get enough: pepper, cotton, silk, ivory, even elephants and tigers for the Colosseum.</p>`,
+  whoa:'Indian peppercorns were found in the nose of the mummy of Pharaoh Ramesses II, who died more than 3,200 years ago.',
+  challenge:{type:'quiz', qs:[
+    {q:'You\'re a merchant in Kerala with a ship full of pepper for Egypt. In winter the monsoon blows from India out toward Arabia and Africa. In summer it blows back toward India. When do you set sail?', o:['In winter, with the wind behind me','In summer, into the wind','Any time. Wind doesn\'t matter'], a:0,
+     ex:'Sail with the winter wind to Egypt, then ride the summer wind home. One round trip a year, like clockwork.'}]},
+  chapter:{t:'Borrow, Then Improve', d:'Ideas grow when cultures meet and share.'} },
+
+{ short:'Golden Minds', title:'India\'s Golden Minds', century:'5th – 7th century CE', face:['5th–7th','CE'], range:[5,7], side:'up',
+  route:['kusumapura','bhinmal'], sides:[], cap:'Kusumapura, near Patna (499 CE) → Bhinmal, Rajasthan (628 CE)',
+  burst:'zero', burstCap:'Aryabhata\'s empty place becomes Brahmagupta\'s working zero.',
+  people:[
+    {k:'aryabhata', name:'Aryabhata', dates:'476–550 CE · 5th century', line:'An astronomer from Kusumapura, near today\'s Patna. His book of 499 CE is where the idea of zero begins.', link:W+'Aryabhata', lt:'See his statue'},
+    {k:'brahmagupta', name:'Brahmagupta', dates:'598–c. 668 CE · 7th century', line:'A mathematician from Bhinmal in Rajasthan. He showed how zero makes the place-value system work.', link:W+'Brahmagupta', lt:'Read about him'}
+  ],
+  story:`<p><strong>Aryabhata · 499 CE.</strong> At 23, Aryabhata packed math and astronomy into a book of 121 short verses. To count enormous numbers of years and stars, he needed a way to mark an empty spot. He used the word <em>kha</em>, meaning "empty sky." That idea, a nothing that means something, is where <strong>zero</strong> begins. He also worked out pi as 3.1416, said the Earth spins every day, and explained eclipses as shadows, not demons.</p>
+  <p><strong>Brahmagupta · 628 CE.</strong> Older civilizations like Babylon treated zero as just a gap. Brahmagupta showed how useful zero really is. In the <strong>place-value system</strong>, every place is worth ten times the place to its right: ones, tens, hundreds. Zero holds a place open, so 105 and 15 are different numbers. He also wrote zero's rules:</p>
+  <ul class="rules"><li>A number minus itself is zero: 5 − 5 = 0</li><li>A number plus zero stays the same: 5 + 0 = 5</li><li>A number times zero is zero: 5 × 0 = 0</li></ul>
+  <p>And he called negative numbers <em>debts</em> and positive numbers <em>fortunes</em>.</p>`,
+  hist:'Place-value counting grew in India over several centuries, and Aryabhata already counted this way. The oldest written 0 symbols found so far come from later Indian writings, like a temple wall in Gwalior from 876 CE.',
+  whoa:'Brahmagupta also tried to divide by zero and got stuck. He was in good company: mathematicians still say dividing by zero has no answer!',
+  toy:'place',
+  challenge:{type:'quiz', qs:[
+    {q:'In Brahmagupta\'s place-value system, which number has 1 hundred, no tens and 5 ones?', o:['15','105','150','1,005'], a:1,
+     ex:'The empty tens place is held by 0. Without it, 105 would look like 15!'},
+    {q:'Brahmagupta\'s rule: you have 7 fortunes and 7 debts. What\'s left?', o:['14','7','0','−7'], a:2,
+     ex:'A number minus itself is zero. The fortunes and debts cancel out.'}]},
+  chapter:{t:'Nothing Is Something', d:'Zero, place value, and negative numbers.'} },
+
+{ short:'House of Wisdom', title:'Baghdad\'s House of Wisdom', century:'8th – 9th century CE', face:['8th–9th','CE'], range:[8,9], side:'down',
+  route:['kashmir','balkh','baghdad'], sides:[['khwarazm','baghdad']], cap:'Kashmir → Balkh → Baghdad, plus al-Khwarizmi from Khwarazm',
+  burst:'scale', burstCap:'Al-jabr: keep both sides balanced and the unknown x shows itself.',
+  people:[
+    {k:'jafar', name:'Jafar the Barmakid', dates:'767–803 CE · 8th century', line:'Chief minister and best friend of Baghdad\'s ruler, Caliph Harun al-Rashid. His family had been Buddhist abbots in Balkh, Afghanistan.', link:W+'Ja%27far_ibn_Yahya', lt:'Read about him'},
+    {k:'khwarizmi', name:'al-Khwarizmi', dates:'c. 780–c. 850 CE · 9th century', line:'A scholar from Khwarazm, in today\'s Uzbekistan, who worked at Baghdad\'s House of Wisdom.', link:W+'Muhammad_ibn_Musa_al-Khwarizmi', lt:'See his stamp'}
+  ],
+  story:`<p>Baghdad was one of the greatest cities on Earth, and its rulers needed someone to run the money. They chose the <strong>Barmakid</strong> family, from Balkh in Afghanistan. Their grandfather had studied in Kashmir, and they were brilliant accountants because they used Indian numbers, zero included.</p>
+  <p>The most famous Barmakid was <strong>Jafar</strong>, best friend of Caliph Harun al-Rashid. In the <em>Arabian Nights</em>, the two sneak through Baghdad at night in disguise. The villain in Disney's <em>Aladdin</em> borrowed his name, but the real Jafar was a hero of math. The Barmakids helped bring the books of Aryabhata and Brahmagupta to Baghdad, where scholars translated them into Arabic.</p>
+  <p>Then <strong>al-Khwarizmi</strong> mixed these Indian ideas with Greek geometry. Around 820 CE he wrote a book whose long title included the word <em>al-jabr</em>, "restoring." That word became <strong>algebra</strong>. His own name, written in Latin as <em>Algoritmi</em>, became <strong>algorithm</strong>.</p>`,
+  why:`<p>Before algebra, every puzzle needed its own special trick. Al-Khwarizmi gave one method that works for <em>any</em> unknown number: do the same thing to both sides and keep them balanced. Later, Descartes turned equations into graphs and Newton used algebra to describe gravity. Today algebra steers rockets, and every app on your phone runs on algorithms, which are recipes of steps.</p>`,
+  whoa:'Many Arabic speakers still call the digits 0 to 9 "Hindi numbers," because Baghdad knew exactly where they came from.',
+  challenge:{type:'scale'},
+  chapter:{t:'Balance the Unknown', d:'Algebra solves for any unknown. Algorithms are recipes of steps.'} },
+
+{ short:'Bridge to Europe', title:'The Bridge to Europe', century:'10th – 13th century CE', face:['10th–13th','CE'], range:[10,13], side:'up',
+  route:['baghdad','bejaia','pisa'], sides:[['bejaia','segovia','ripoll']], cap:'Baghdad → Bejaia, Algeria → Pisa, plus Spain: Segovia and Ripoll',
+  burst:'sunflower', burstCap:'1, 1, 2, 3, 5, 8, 13… the pattern hiding in a sunflower.',
+  gate:{title:'This domino is stuck!', text:'Europe is clinging to Roman numerals: no place value, no zero, and long, clumsy numbers. Crack the Roman code to push this domino over.',
+    qs:[{q:'Help Fibonacci: what year is MCCII?', o:['1102','1202','2102','1220'], a:1, ex:'M = 1000, CC = 200, II = 2. That\'s 1202, the year Fibonacci published his book!'}]},
+  people:[
+    {k:'fibonacci', name:'Fibonacci', dates:'c. 1170–c. 1250 · 12th–13th century', line:'Leonardo of Pisa. He grew up in Bejaia, a port in Algeria, where his father ran a trading office for Pisa\'s merchants.', link:W+'Fibonacci', lt:'See his statue'},
+    {k:'robert', name:'Robert of Chester', dates:'12th century', line:'An English scholar who translated al-Khwarizmi\'s algebra book into Latin in Segovia, Spain, in 1145.', link:W+'Robert_of_Chester', lt:'Read about him'}
+  ],
+  story:`<p>The new numbers spread west across North Africa and into Spain. By the 10th century, monks at the monastery of Ripoll, near Barcelona, had seen them. In 1145, Robert of Chester translated al-Khwarizmi's algebra into Latin. Still, most of Europe stubbornly kept its Roman numerals.</p>
+  <p>Then came a boy from Pisa, Italy. <strong>Fibonacci</strong> grew up in Bejaia, in Algeria, and learned the Indian numbers there. Back in Pisa, his friends were still struggling with numbers like MCCII. So in 1202 he wrote <em>Liber Abaci</em>, the "Book of Calculation." Even the Holy Roman Emperor, Frederick II, was impressed.</p>
+  <p>His book has a famous rabbit puzzle. Count the pairs each month and you get 1, 1, 2, 3, 5, 8, 13… where each number is the sum of the two before it. Plot twist: Indian poets had found the same pattern centuries earlier, while counting the rhythms of Sanskrit poetry.</p>`,
+  why:`<p>Fibonacci didn't invent these numbers. He was the <strong>bridge</strong>. He wrote them down in Latin, Europe's language of learning, with hundreds of real problems: pricing cloth, swapping coins, splitting profits and adding interest. Merchants could now calculate fast and get it right. Italian banking took off, and in 1494 Luca Pacioli wrote down double-entry bookkeeping, which nearly every business still uses.</p>`,
+  whoa:'Dalrymple jokes that if he gave his phone number in Roman numerals, the whole interview would be over before he finished.',
+  challenge:{type:'quiz', qs:[
+    {q:'Continue Fibonacci\'s rabbit pattern: 1, 1, 2, 3, 5, 8, …', o:['11','13','16','21'], a:1,
+     ex:'5 + 8 = 13. Count the spirals on a sunflower or a pinecone and you\'ll often find these numbers.'}]},
+  chapter:{t:'Numbers for Everyone', d:'Indian numerals reach Europe\'s merchants, banks and schools.'} },
+
+{ short:'Renaissance', title:'Renaissance and Revolution', century:'15th – 17th century CE', face:['15th–17th','CE'], range:[15,17], side:'down',
+  route:['pisa','sansepolcro','milan','padua'], sides:[], cap:'Pisa → Tuscany (Piero) → Milan (Leonardo) → Padua (Galileo)',
+  burst:'galileo', burstCap:'Perspective lines meet at a vanishing point. Then Jupiter appears with its four moons.',
+  people:[
+    {k:'piero', name:'Piero della Francesca', dates:'c. 1415–1492 · 15th century', line:'A painter who was also a mathematician. He wrote a math book for merchants and a book on perspective.', link:W+'Piero_della_Francesca', lt:'See his paintings'},
+    {k:'leonardo', name:'Leonardo da Vinci', dates:'1452–1519 · 15th–16th century', line:'Artist and engineer in Milan. He drew the pictures for his friend Luca Pacioli\'s math book.', link:W+'Leonardo_da_Vinci', lt:'See his notebooks'},
+    {k:'galileo', name:'Galileo Galilei', dates:'1564–1642 · 16th–17th century', line:'Built a telescope in Padua and pointed it at the night sky.', link:W+'Galileo_Galilei', lt:'See his portrait'}
+  ],
+  story:`<p>Fibonacci's math spread through Italy's abacus schools. A painter named <strong>Piero della Francesca</strong> learned it and wrote math books of his own. He used geometry to make flat paintings look deep, with lines that meet at a vanishing point. That trick, called perspective, changed Renaissance art.</p>
+  <p>Piero's friend Luca Pacioli carried this math to Milan, where in 1498 <strong>Leonardo da Vinci</strong> drew the pictures for Pacioli's book about proportion. Dalrymple counts just four or five jumps from Leonardo back to Aryabhata and Brahmagupta.</p>
+  <p>Then the sky changed. In 1543, Copernicus said the Earth goes around the Sun. In 1610, <strong>Galileo</strong> looked through his telescope and saw four moons circling Jupiter. In 1623 he wrote that the universe is a giant book written in the language of mathematics. Church judges put him on trial in 1633, but his ideas could not be stopped.</p>
+  <p><strong>1,111 years apart.</strong> Aryabhata said the Earth spins in 499 CE. Galileo's telescope discoveries came in 1610. Look for the new arc on the timeline above the dominoes.</p>`,
+  hist:'Dalrymple says Aryabhata knew the Earth goes around the Sun. Historians agree Aryabhata said the Earth spins. Whether he also said it circles the Sun is still debated.',
+  whoa:'Galileo\'s four moons are still called the Galilean moons: Io, Europa, Ganymede and Callisto. Ganymede is bigger than the planet Mercury!',
+  challenge:{type:'quiz', qs:[
+    {q:'Use your place-value powers! How many years passed between Aryabhata\'s book (499) and Galileo\'s telescope discoveries (1610)?', o:['1,011','1,101','1,111','2,109'], a:2,
+     ex:'1610 − 499 = 1,111. Now try it in Roman numerals: MDCX − CDXCIX. No thanks!'},
+    {q:'What did Galileo spot around Jupiter in 1610?', o:['Rings','Four moons','A comet'], a:1,
+     ex:'Four moons circling Jupiter proved that not everything in the sky goes around the Earth.'}]},
+  chapter:{t:'Nature\'s Language', d:'Perspective, telescopes, and a universe written in math.'} },
+
+{ short:'Forgotten & Found', title:'Forgotten and Found', century:'19th – 21st century', face:['19th–21st','CE'], range:[19,21], side:'up',
+  route:[], sides:[], cap:'The whole chain, from Pella to the phone in your pocket',
+  burst:'fade', burstCap:'The Book fades… until someone remembers.',
+  people:[
+    {k:'macaulay', name:'Thomas Macaulay', dates:'1800–1859 · 19th century', line:'A British official who decided what schools in British India should teach.', link:W+'Thomas_Babington_Macaulay', lt:'Read about his 1835 Minute'},
+    {k:'you', name:'You', dates:'21st century', line:'The newest Keeper of Zero. Relight the Book to finish the chain.'}
+  ],
+  story:`<p>By the 1800s, Britain ruled most of India, and Europe had forgotten where its numbers came from. In 1835, a British official named <strong>Thomas Macaulay</strong> wrote that "a single shelf of a good European library was worth the whole native literature of India and Arabia." Schools taught Pythagoras and Archimedes. Aryabhata and Brahmagupta faded from the story, even in India.</p>
+  <p>Look at the Book of Mathematics: it has gone grey. Dalrymple says history is like a map. Without it, you're stuck on a mountain with no idea where you came from or where you can go.</p>
+  <p>But every phone keypad, scoreboard and computer still runs on the numbers from this chain. Answer the questions below and watch each chapter light up again.</p>`,
+  whoa:'Typing a phone number, checking a score or playing a video game uses zero and place value from India, algebra from Baghdad and Fibonacci\'s book from Pisa.',
+  challenge:{type:'final'},
+  chapter:{t:'History Is a Map', d:'Remember where ideas come from, and you\'ll know where you can go.'} }
+];
+
+const FINAL = [
+  {q:'Who taught the young Alexander to think with logic?', o:['Aristotle','Porus','Fibonacci','Galileo'], a:0, ex:'Aristotle tutored Alexander from 343 BCE.'},
+  {q:'Where did Alexander battle King Porus and his war elephants?', o:['Egypt','Punjab, at the Hydaspes River','Baghdad','Rome'], a:1, ex:'The Battle of the Hydaspes, 326 BCE.'},
+  {q:'With the monsoon behind it, how long did a ship take from India to Egypt?', o:['About six days','About six weeks','About six months'], a:1, ex:'About six weeks, then home again when the wind turned.'},
+  {q:'Aryabhata\'s word for an empty place, kha, means…', o:['empty sky','ten','eclipse'], a:0, ex:'A nothing that means something: the beginning of zero.'},
+  {q:'In Brahmagupta\'s place-value system, each place is worth…', o:['twice the place to its right','ten times the place to its right','the same as every other place'], a:1, ex:'Ones, tens, hundreds. That\'s why zero, holding an empty place, matters.'},
+  {q:'The real Jafar was…', o:['a sorcerer with a magic lamp','a chief minister in Baghdad whose family used Indian math','a Greek general'], a:1, ex:'Disney borrowed his name. History remembers his numbers.'},
+  {q:'The word "algebra" comes from…', o:['al-Khwarizmi\'s book al-Jabr','Fibonacci\'s rabbits','Galileo\'s telescope'], a:0, ex:'And al-Khwarizmi\'s own name gave us "algorithm."'},
+  {q:'Where did Fibonacci learn the Indian numbers?', o:['Bejaia, Algeria','Paris, France','Athens, Greece'], a:0, ex:'His father ran Pisa\'s trading office there.'},
+  {q:'Galileo said the universe is written in…', o:['Latin','the language of mathematics','Roman numerals'], a:1, ex:'He wrote that in 1623.'},
+  {q:'Why was this story forgotten?', o:['Nobody ever wrote it down','Colonial officials like Macaulay taught that only European learning mattered','The numbers stopped working'], a:1, ex:'Dalrymple says colonialism is the short answer. Now you know the long one!'}
+];
+
+/* ---------------- State ---------------- */
+const KEY = 'zero-domino-road-v2';
+const fresh = () => ({fallen:0, done:[false,false,false,false,false,false,false], gate:false, complete:false});
+let S = fresh();
+try{ const raw = localStorage.getItem(KEY); if (raw){ const p = JSON.parse(raw); if (p && Array.isArray(p.done) && p.done.length === 7) S = Object.assign(fresh(), p); } }catch(e){}
+try{ const pr = JSON.parse(localStorage.getItem(KEY + '-prefs') || '{}'); if (typeof pr.sound === 'boolean') soundOn = pr.sound;  }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function savePrefs(){ try{ localStorage.setItem(KEY + '-prefs', JSON.stringify({sound:soundOn})); }catch(e){} }
+const fadedMode = () => S.fallen >= 7 && !S.complete;
+
+/* ---------------- Sound ---------------- */
+let actx = null, master = null;
+function ac(){
+  if (!actx){
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+      actx = new AC(); master = actx.createGain(); master.gain.value = 1;
+      const comp = actx.createDynamicsCompressor(); master.connect(comp); comp.connect(actx.destination);
+    }catch(e){ actx = null; return null; }
+  }
+  if (actx.state !== 'running'){ try{ actx.resume(); }catch(e){} }
+  return actx;
+}
+const SILENT = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+let silentEl = null;
+function unlockAudio(){
+  try{ if (navigator.audioSession) navigator.audioSession.type = 'playback'; }catch(e){}
+  const a = ac(); if (!a) return;
+  try{ const b = a.createBuffer(1, 1, 22050), s = a.createBufferSource(); s.buffer = b; s.connect(a.destination); s.start(0); }catch(e){}
+  if (!silentEl){ try{ silentEl = new Audio(SILENT); silentEl.loop = true; silentEl.volume = 0.01; silentEl.setAttribute('playsinline', ''); const p = silentEl.play(); if (p && p.catch) p.catch(() => {}); }catch(e){} }
+}
+['pointerdown','touchend','keydown','click'].forEach(ev => document.addEventListener(ev, unlockAudio, {capture:true, passive:true}));
+function tone(freq, dur, type, vol, slideTo, when){
+  if (!soundOn) return; const a = ac(); if (!a) return;
+  const play = () => {
+    const t = a.currentTime + .01 + (when || 0);
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol || .3, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + .05);
+  };
+  if (a.state === 'running') play(); else { try{ a.resume().then(play).catch(() => {}); }catch(e){} }
+}
+const thud = () => { tone(160, .4, 'sine', .95, 45); tone(1100, .06, 'triangle', .2); };
+const chime = () => { tone(660, .4, 'triangle', .45); tone(990, .55, 'triangle', .38, null, .13); };
+const ping = () => tone(880, .22, 'sine', .35);
+const buzz = () => tone(170, .25, 'square', .14, 120);
+const swoosh = () => tone(300, 1.1, 'sine', .18, 900);
+
+/* ---------------- Helpers ---------------- */
+const cidx = c => c < 0 ? c + 4 : c + 3;              // centuries -4..-1 → 0..3, 1..21 → 4..24
+const pct = i => (i / 25) * 100;
+let toastT;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800); }
+function setCalm(v){ calm = v; root.classList.toggle('calm', calm); }
+function setSound(v){ soundOn = v; const b = $('#soundBtn'); b.setAttribute('aria-pressed', String(soundOn)); b.textContent = soundOn ? 'Sound on' : 'Sound off'; }
+function scrollToEl(el){ const y = el.getBoundingClientRect().top + window.scrollY - 12; window.scrollTo({top:Math.max(0, y), behavior: calm ? 'auto' : 'smooth'}); }
+const wait = ms => new Promise(r => setTimeout(r, calm ? 0 : ms));
+
+/* ---------------- Timeline ---------------- */
+function buildTimeline(){
+  const years = [['4th c. BCE', pct(.5)],['1 CE',16],['500',36],['1000',56],['1500',76],['Today',98]];
+  let h = `<div class="tl-axis"></div><div id="tlRanges"></div><div class="tl-ce" style="left:16%"></div>`;
+  h += years.map(([t, p], k) => `<span class="tl-year${k === 0 ? ' first' : ''}" style="left:${p}%">${t}</span>`).join('');
+  h += `<svg class="tl-arc" id="tlArc" viewBox="0 0 1000 64" preserveAspectRatio="none" aria-hidden="true"><path d="M340 62 Q580 -26 820 62" vector-effect="non-scaling-stroke"/></svg><span class="arc-lab">Aryabhata → Galileo: 1,111 years</span>`;
+  h += D.map((d, i) => { const m = (cidx(d.range[0]) + cidx(d.range[1]) + 1) / 2; return `<div class="tm ${d.side}" id="tm${i}" style="left:${pct(m)}%"><span class="tm-dot">${i+1}</span><span class="tm-lab"><b>${d.short}</b><i>${d.face.join(' ').replace('to ','– ')}</i></span></div>`; }).join('');
+  $('#timeline').innerHTML = h;
+  $('#timeline').classList.remove('arc-on');
+}
+function lightTimeline(i, anim){
+  const d = D[i]; const a = cidx(d.range[0]), b = cidx(d.range[1]) + 1;
+  if (!document.getElementById('rng' + i)){
+    const r = document.createElement('div'); r.className = 'tl-range'; r.id = 'rng' + i;
+    r.style.left = pct(a) + '%'; r.style.width = (pct(b) - pct(a)) + '%';
+    if (!anim) r.style.animation = 'none';
+    $('#tlRanges').appendChild(r);
+  }
+  const m = $('#tm' + i); m.classList.add('lit'); if (anim){ m.classList.remove('pop'); void m.offsetWidth; m.classList.add('pop'); }
+}
+function showArc(anim){ const svg = $('#tlArc'); if (!anim) svg.querySelector('path').style.animation = 'none'; svg.classList.add('show'); $('#timeline').classList.add('arc-on'); }
+
+/* ---------------- Dominoes ---------------- */
+const PIPS = {1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9],7:[1,3,4,5,6,7,9]};
+const doms = [];
+function buildRow(){
+  const row = $('#row');
+  D.forEach((d, i) => {
+    const slot = document.createElement('div'); slot.className = 'slot';
+    const pips = Array.from({length:9}, (_, k) => PIPS[i+1].includes(k+1) ? '<span class="pip"></span>' : '<span></span>').join('');
+    slot.innerHTML = `<button class="dom${i===6?' last':''}" id="dom${i}" aria-label="Domino ${i+1}: ${d.title}, ${d.century}">
+      <span class="dom-face"><span class="dom-cent">${d.face[0]}<br>${d.face[1]}</span><span class="dom-bar"></span><span class="dom-pips">${pips}</span></span></button>
+      <span class="dom-label">${d.short}</span>`;
+    row.appendChild(slot);
+    const btn = slot.querySelector('.dom'); doms.push(btn);
+    btn.addEventListener('click', () => onDomino(i));
+    btn.addEventListener('animationend', e => { if (e.animationName !== 'push' && e.animationName !== 'pushLast') btn.classList.remove('bumped','stuck','nudge'); });
+  });
+}
+function updateRow(){
+  doms.forEach((b, i) => {
+    b.classList.toggle('fallen', !S.complete && i < S.fallen);
+    b.classList.toggle('done', S.complete);
+    b.classList.toggle('ready', !S.complete && !busy && i === S.fallen && (i === 0 || S.done[i-1]));
+    b.parentElement.classList.toggle('current', i === current);
+  });
+  const hint = $('#hint');
+  if (S.complete) hint.innerHTML = 'Chain complete! Tap any domino to revisit its story.';
+  else if (S.fallen === 0) hint.innerHTML = 'Tap <b>domino 1</b> to give history its first push.';
+  else if (!S.done[S.fallen-1]) hint.innerHTML = `Solve the challenge for <b>domino ${S.fallen}</b> below to unlock the next push.`;
+  else hint.innerHTML = `Ready! Push <b>domino ${S.fallen+1}</b>.`;
+}
+function nudge(i){ const b = doms[i]; if (!b) return; b.classList.remove('nudge'); void b.offsetWidth; b.classList.add('nudge'); }
+function focusDomino(i){ const sc = $('#stageScroll'), t = doms[i]; if (t) sc.scrollTo({left: Math.max(0, t.parentElement.offsetLeft - 60), behavior: calm ? 'auto' : 'smooth'}); }
+
+function onDomino(i){
+  if (busy) return;
+  if (S.complete || i < S.fallen){ showCard(i); scrollToEl($('#card')); return; }
+  if (i > S.fallen){ toast(`Push domino ${S.fallen+1} first!`); nudge(S.fallen); return; }
+  if (i > 0 && !S.done[i-1]){ toast(`Finish the challenge for domino ${i} first.`); showCard(i-1); scrollToEl($('#card')); return; }
+  if (i === 4 && !S.gate){ stuckSequence(); return; }
+  knock(i);
+}
+
+async function knock(i){
+  const token = runToken;
+  busy = true; updateRow();
+  const b = doms[i];
+  b.classList.add('pushing');
+  await wait(i === 6 ? 1150 : 950); if (token !== runToken) return;
+  thud();
+  const st = $('#stage'); st.classList.remove('shake'); void st.offsetWidth; if (!calm) st.classList.add('shake');
+  if (i < 6){ const n = doms[i+1]; n.classList.remove('bumped'); void n.offsetWidth; n.classList.add('bumped'); }
+  lightTimeline(i, true);
+  await wait(250); if (token !== runToken) return;
+  b.classList.remove('pushing');
+  S.fallen = i + 1; save();
+  busy = false; updateRow();
+  if (i === 5) showArc(true);
+  if (i === 6) updateBook();
+  showCard(i);
+  if (calm){ revealRoute(i); scrollToEl($('#card')); return; }
+  await wait(250); if (token !== runToken) return;
+  openMap(i, true);
+}
+
+function stuckSequence(){
+  const b = doms[4]; b.classList.remove('stuck'); void b.offsetWidth; b.classList.add('stuck');
+  tone(110, .18, 'sine', .5, 80); setTimeout(() => tone(110, .18, 'sine', .45, 80), 260);
+  showCard(4, {stuck:true});
+  setTimeout(() => scrollToEl($('#card')), calm ? 0 : 500);
+}
+
+/* ---------------- Map popup ---------------- */
+const P = (lat, lon) => [ (lon + 6) * 10.6, (47.5 - lat) * 13 ];
+const CITY = {
+  pella:{n:'Pella',lat:40.8,lon:22.5,dx:0,dy:-20,a:'middle'},
+  hydaspes:{n:'Hydaspes River',lat:32.9,lon:73.7,dx:-18,dy:-14,a:'end'},
+  muziris:{n:'Muziris (Kerala)',lat:10.2,lon:76.2,dx:-18,dy:8,a:'end'},
+  aden:{lat:12.6,lon:45.5,hidden:true},
+  berenike:{n:'Berenike',lat:23.9,lon:35.5,dx:18,dy:8,a:'start'},
+  alexandria:{n:'Alexandria',lat:31.2,lon:29.9,dx:16,dy:26,a:'start'},
+  rome:{n:'Rome',lat:41.9,lon:12.5,dx:0,dy:36,a:'middle'},
+  kusumapura:{n:'Kusumapura',lat:25.6,lon:85.1,dx:-16,dy:-16,a:'end'},
+  bhinmal:{n:'Bhinmal',lat:25.0,lon:72.3,dx:-18,dy:8,a:'end'},
+  kashmir:{n:'Kashmir',lat:34.4,lon:75.0,dx:16,dy:-10,a:'start'},
+  balkh:{n:'Balkh',lat:36.8,lon:66.9,dx:0,dy:-20,a:'middle'},
+  baghdad:{n:'Baghdad',lat:33.3,lon:44.4,dx:0,dy:38,a:'middle'},
+  khwarazm:{n:'Khwarazm',lat:41.4,lon:60.4,dx:0,dy:-20,a:'middle'},
+  bejaia:{n:'Bejaia',lat:36.75,lon:5.08,dx:0,dy:38,a:'middle'},
+  ripoll:{n:'Ripoll',lat:42.2,lon:2.2,dx:-16,dy:-10,a:'end'},
+  segovia:{n:'Segovia',lat:41.0,lon:-4.1,dx:4,dy:36,a:'start'},
+  pisa:{n:'Pisa',lat:43.7,lon:10.4,dx:-16,dy:12,a:'end'},
+  sansepolcro:{n:'Tuscany',lat:43.57,lon:12.14,dx:16,dy:30,a:'start'},
+  milan:{n:'Milan',lat:45.5,lon:9.2,dx:-16,dy:4,a:'end'},
+  padua:{n:'Padua',lat:45.4,lon:11.9,dx:16,dy:4,a:'start'}
+};
+const REGIONS = [['GREECE',38.4,23,''],['EGYPT',26.5,30,''],['ARABIA',23,46,''],['PERSIA',31.5,55,''],['INDIA',21.5,79,''],['ARABIAN SEA',15,63,'sea'],['MEDITERRANEAN',35.2,18,'sea'],['N. AFRICA',31,6,''],['EUROPE',46.3,-1,''],['CENTRAL ASIA',44.3,68,'']];
+function curvePath(keys){
+  const pts = keys.map(k => P(CITY[k].lat, CITY[k].lon));
+  let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let j = 1; j < pts.length; j++){
+    const [ax, ay] = pts[j-1], [bx, by] = pts[j];
+    const dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1, bend = len * .16;
+    const cx = (ax + bx) / 2 - dy / len * bend, cy = (ay + by) / 2 + dx / len * bend;
+    d += ` Q${cx.toFixed(1)} ${cy.toFixed(1)} ${bx.toFixed(1)} ${by.toFixed(1)}`;
+  }
+  return d;
+}
+let mapBuilt = false, animIdx = -1;
+function buildMap(){
+  const svg = $('#map');
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  let h = `<defs><filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  for (let k = 0; k < 110; k++) h += `<circle class="star" cx="${(rnd()*1000).toFixed(0)}" cy="${(rnd()*510).toFixed(0)}" r="${(rnd()*1.6+.4).toFixed(1)}" opacity="${(rnd()*.5+.1).toFixed(2)}"/>`;
+  for (let lon = 0; lon <= 80; lon += 10){ const x = P(0, lon)[0]; h += `<line class="grat" x1="${x}" y1="0" x2="${x}" y2="510"/>`; }
+  for (let lat = 10; lat <= 40; lat += 10){ const y = P(lat, 0)[1]; h += `<line class="grat" x1="0" y1="${y}" x2="1000" y2="${y}"/>`; }
+  REGIONS.forEach(([t, lat, lon, c]) => { const [x, y] = P(lat, lon); h += `<text class="region ${c}" x="${x.toFixed(0)}" y="${y.toFixed(0)}" text-anchor="middle">${t}</text>`; });
+  D.forEach((d, i) => {
+    if (d.route.length) h += `<path class="route" id="route${i}" d="${curvePath(d.route)}"/>`;
+    d.sides.forEach((s, j) => { h += `<path class="route side" id="side${i}_${j}" d="${curvePath(s)}"/>`; });
+  });
+  Object.entries(CITY).forEach(([k, c]) => {
+    if (c.hidden) return;
+    const [x, y] = P(c.lat, c.lon);
+    h += `<g class="city" id="city-${k}"><circle class="halo" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="18"/><circle class="dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7"/><text x="${(x + c.dx).toFixed(1)}" y="${(y + c.dy).toFixed(1)}" text-anchor="${c.a}">${c.n}</text></g>`;
+  });
+  h += `<g id="spark" opacity="0"><circle class="spark-glow" r="18"/><circle class="spark-core" r="7"/></g>`;
+  svg.innerHTML = h;
+  svg.classList.remove('all-glow');
+  mapBuilt = false;
+}
+function measureMap(){
+  if (mapBuilt) return;
+  document.querySelectorAll('#map .route').forEach(p => {
+    const L = p.getTotalLength(); p.dataset.len = L;
+    if (!p.dataset.shown){ p.style.strokeDasharray = L; p.style.strokeDashoffset = L; }
+  });
+  mapBuilt = true;
+}
+function pathsFor(i){ const out = []; const m = document.getElementById('route' + i); if (m) out.push(m); D[i].sides.forEach((_, j) => out.push(document.getElementById('side' + i + '_' + j))); return out; }
+function citiesFor(i){ const d = D[i]; const set = new Set(d.route); d.sides.forEach(s => s.forEach(k => set.add(k))); return [...set].filter(k => !CITY[k].hidden); }
+function revealRoute(i){
+  if (i === 6){ $('#map').classList.add('all-glow'); return; }
+  pathsFor(i).forEach(p => { p.dataset.shown = '1'; p.style.strokeDashoffset = 0; p.style.strokeDasharray = p.classList.contains('side') ? '7 8' : 'none'; });
+  citiesFor(i).forEach(k => document.getElementById('city-' + k).classList.add('visited'));
+}
+function setMapFocus(i){
+  document.querySelectorAll('#map .city').forEach(c => c.classList.remove('labeled','active'));
+  $('#mapEyebrow').textContent = `Domino ${i+1} · ${D[i].century}`;
+  $('#mapTitle').textContent = i === 6 ? 'The whole chain lights up' : 'The idea travels';
+  $('#mapCap').innerHTML = `<b>${D[i].cap}</b>`;
+  if (i === 6){ document.querySelectorAll('#map .city.visited').forEach(c => c.classList.add('labeled')); return; }
+  citiesFor(i).forEach(k => document.getElementById('city-' + k).classList.add('labeled'));
+  const last = D[i].route[D[i].route.length - 1]; if (last) document.getElementById('city-' + last).classList.add('active');
+}
+function animateRoute(i){
+  return new Promise(res => {
+    if (i === 6){ setTimeout(() => { revealRoute(6); chime(); res(); }, calm ? 0 : 500); return; }
+    const paths = pathsFor(i), main = paths[0], spark = $('#spark');
+    if (calm || !main){ revealRoute(i); res(); return; }
+    paths.forEach(p => { p.style.strokeDasharray = p.dataset.len; p.style.strokeDashoffset = p.dataset.len; });
+    const L = +main.dataset.len, dur = Math.min(2800, Math.max(1600, L * 2.4));
+    let t0 = null; spark.setAttribute('opacity', '1'); swoosh();
+    function frame(ts){
+      if (!t0) t0 = ts; const t = Math.min(1, (ts - t0) / dur); const e = t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
+      paths.forEach(p => { p.style.strokeDashoffset = (+p.dataset.len) * (1 - e); });
+      const pt = main.getPointAtLength(L * e); spark.setAttribute('transform', `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)})`);
+      if (t < 1) requestAnimationFrame(frame);
+      else { spark.setAttribute('opacity', '0'); revealRoute(i); ping(); res(); }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+let vb = [0,0,1000,510];
+function setVB(v){ vb = v; $('#map').setAttribute('viewBox', v.map(n => n.toFixed(1)).join(' ')); }
+function targetVB(i){
+  if (i === 6 || window.innerWidth >= 700) return [0,0,1000,510];
+  const keys = new Set(D[i].route); D[i].sides.forEach(sd => sd.forEach(k => keys.add(k)));
+  const pts = [...keys].map(k => P(CITY[k].lat, CITY[k].lon));
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), pad = 80, A = 510 / 1000;
+  let w = Math.max(...xs) - Math.min(...xs) + pad * 2, h = Math.max(...ys) - Math.min(...ys) + pad * 2;
+  w = Math.max(w, 360, h / A); w = Math.min(w, 1000); h = w * A;
+  const cx = (Math.max(...xs) + Math.min(...xs)) / 2, cy = (Math.max(...ys) + Math.min(...ys)) / 2;
+  const x = Math.min(Math.max(cx - w / 2, 0), 1000 - w), y = Math.min(Math.max(cy - h / 2, 0), 510 - h);
+  return [x, y, w, h];
+}
+function animateVB(to, dur){
+  return new Promise(res => {
+    const from = vb.slice(); if (calm){ setVB(to); res(); return; }
+    let t0 = null;
+    function f(ts){ if (!t0) t0 = ts; const t = Math.min(1, (ts - t0) / dur); const e = 1 - Math.pow(1 - t, 3);
+      setVB(from.map((v, k) => v + (to[k] - v) * e)); if (t < 1) requestAnimationFrame(f); else res(); }
+    requestAnimationFrame(f);
+  });
+}
+async function openMap(i, animate){
+  const m = $('#mapModal'); m.hidden = false; animIdx = animate ? i : -1; measureMap(); animIdx = -1;
+  setMapFocus(i);
+  const go = $('#mapGo'); go.classList.remove('ready'); go.textContent = 'Read the story';
+  go.focus({preventScroll:true});
+  const tv = targetVB(i);
+  if (animate){ setVB([0,0,1000,510]); await wait(350); await animateVB(tv, 900); await animateRoute(i); }
+  else setVB(tv);
+  go.classList.add('ready');
+}
+function closeMap(){ const m = $('#mapModal'); if (m.hidden) return; m.hidden = true; scrollToEl($('#card')); }
+
+/* ---------------- Bursts ---------------- */
+function burstHTML(type){
+  if (type === 'coin') return `<div class="coin-spin"><svg viewBox="0 0 130 130" width="160" height="160" aria-hidden="true">
+    <circle cx="65" cy="65" r="60" fill="#d9a441" stroke="#8a5a14" stroke-width="4"/><circle cx="65" cy="65" r="51" fill="none" stroke="#f6d27a" stroke-width="2" stroke-dasharray="3 4"/>
+    <g fill="#6e430c"><ellipse cx="80" cy="72" rx="21" ry="14"/><circle cx="97" cy="63" r="10"/><path d="M104 64 q7 9 1 19" stroke="#6e430c" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect x="64" y="80" width="6" height="14" rx="2"/><rect x="72" y="81" width="6" height="13" rx="2"/><rect x="86" y="80" width="6" height="14" rx="2"/><rect x="93" y="79" width="6" height="14" rx="2"/>
+    <circle cx="78" cy="50" r="5"/><rect x="74" y="54" width="8" height="10" rx="2"/>
+    <ellipse cx="38" cy="80" rx="14" ry="7"/><path d="M48 77 L55 65 L59 67 L52 80 Z"/><rect x="28" y="84" width="3" height="11"/><rect x="45" y="84" width="3" height="11"/>
+    <circle cx="38" cy="63" r="4.5"/><rect x="35" y="66" width="6" height="9" rx="2"/></g>
+    <path d="M41 66 L70 54" stroke="#6e430c" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="93" cy="62" rx="4" ry="6" fill="#a4701f"/></svg></div>`;
+  if (type === 'monsoon') return `<svg viewBox="0 0 320 150" aria-hidden="true">
+    <text x="20" y="28" font-family="Martian Mono, monospace" font-size="11" fill="#aab0d8">EGYPT</text><text x="300" y="28" text-anchor="end" font-family="Martian Mono, monospace" font-size="11" fill="#aab0d8">INDIA</text>
+    <g stroke="#36c2b1" stroke-width="2" fill="none" opacity=".6"><path d="M0 120 q20 -8 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0"/><path d="M0 134 q20 -8 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0"/></g>
+    <g stroke="#ffd66b" stroke-width="3" stroke-linecap="round" fill="none"><g class="b-wind"><path d="M250 50 h-60 M200 42 l-10 8 l10 8"/></g><g class="b-wind"><path d="M280 72 h-70 M220 64 l-10 8 l10 8"/></g><g class="b-wind"><path d="M240 94 h-50 M200 86 l-10 8 l10 8"/></g></g>
+    <g class="b-boat"><g transform="translate(250 0)"><path d="M-34 108 h64 l-12 14 h-42 z" fill="#8c5a3c"/><line x1="0" y1="108" x2="0" y2="52" stroke="#e3d5b8" stroke-width="3"/><path d="M0 54 L-30 100 L0 100 Z" fill="#f6eedd"/><path d="M0 56 L22 98 L0 98 Z" fill="#f4a83c"/></g></g></svg>`;
+  if (type === 'zero') return `<svg viewBox="0 0 320 150" aria-hidden="true">
+    <g font-family="Rozha One, Georgia, serif" font-size="46" text-anchor="middle">
+    <rect x="62" y="30" width="56" height="70" rx="10" fill="#1f2560" stroke="#2f3679" stroke-width="2"/><text x="90" y="82" fill="#eef0ff">1</text>
+    <rect class="b-empty" x="132" y="30" width="56" height="70" rx="10" fill="#1f2560" stroke="#ffd66b" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <circle class="b-ring" cx="160" cy="65" r="26" fill="none" stroke="#ffd66b" stroke-width="2"/><circle class="b-ring r2" cx="160" cy="65" r="26" fill="none" stroke="#f4a83c" stroke-width="2"/>
+    <text class="b-zero" x="160" y="82" fill="#ffd66b">0</text>
+    <rect x="202" y="30" width="56" height="70" rx="10" fill="#1f2560" stroke="#2f3679" stroke-width="2"/><text x="230" y="82" fill="#eef0ff">5</text></g>
+    <g font-family="Martian Mono, monospace" font-size="9" fill="#aab0d8" text-anchor="middle"><text x="90" y="118">HUNDREDS</text><text x="160" y="118">TENS</text><text x="230" y="118">ONES</text></g>
+    <text x="160" y="142" text-anchor="middle" font-family="Lexend, sans-serif" font-size="13" fill="#eef0ff">one hundred five, not fifteen</text></svg>`;
+  if (type === 'scale') return `<svg viewBox="0 0 300 150" aria-hidden="true">
+    <polygon points="150,62 132,138 168,138" fill="#2f3679"/><rect x="110" y="136" width="80" height="8" rx="4" fill="#2f3679"/>
+    <g class="b-beam"><rect x="40" y="58" width="220" height="8" rx="4" fill="#f4a83c"/><circle cx="150" cy="62" r="6" fill="#ffd66b"/>
+      <path d="M56 64 L36 100 M56 64 L76 100 M244 64 L224 100 M244 64 L264 100" stroke="#aab0d8" stroke-width="1.5"/>
+      <rect x="28" y="100" width="56" height="5" rx="2.5" fill="#e3d5b8"/><rect x="216" y="100" width="56" height="5" rx="2.5" fill="#e3d5b8"/>
+      <g class="b-xdrop"><rect x="34" y="76" width="24" height="24" rx="4" fill="#36c2b1"/><text x="46" y="94" text-anchor="middle" font-family="Rozha One, serif" font-size="18" fill="#0d1130">x</text></g>
+      <g fill="#f6eedd"><rect x="62" y="88" width="11" height="11" rx="2"/><rect x="74" y="88" width="9" height="11" rx="2"/><rect x="66" y="76" width="11" height="11" rx="2"/></g>
+      <text x="244" y="94" text-anchor="middle" font-family="Rozha One, serif" font-size="26" fill="#ffd66b">10</text></g>
+    <text x="150" y="24" text-anchor="middle" font-family="Martian Mono, monospace" font-size="13" fill="#eef0ff">x + 3 = 10</text></svg>`;
+  if (type === 'sunflower'){
+    let seeds = '';
+    for (let k = 1; k <= 170; k++){ const r = 5.2 * Math.sqrt(k), th = k * 137.508 * Math.PI / 180; const x = 160 + r * Math.cos(th), y = 72 + r * Math.sin(th);
+      seeds += `<circle class="seed" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(2 + k/110).toFixed(2)}" fill="${k % 2 ? '#f4a83c' : '#ffd66b'}" style="animation-delay:${k*9}ms"/>`; }
+    return `<svg viewBox="0 0 320 150" aria-hidden="true">${seeds}<text class="b-seq" style="animation-delay:1.5s" x="160" y="146" text-anchor="middle" font-family="Martian Mono, monospace" font-size="11" fill="#eef0ff">1 · 1 · 2 · 3 · 5 · 8 · 13 · 21 · 34</text></svg>`;
+  }
+  if (type === 'galileo'){
+    let lines = ''; const vx = 80, vy = 48;
+    [-40,0,40,80,120,160,200].forEach((bx, k) => { lines += `<line class="pline" style="animation-delay:${k*90}ms" x1="${bx}" y1="140" x2="${vx}" y2="${vy}" stroke="#f4a83c" stroke-width="1.5"/>`; });
+    [64,82,104,140].forEach((y, k) => { lines += `<line class="pline" style="animation-delay:${600 + k*90}ms" x1="0" y1="${y}" x2="160" y2="${y}" stroke="#36c2b1" stroke-width="1.2"/>`; });
+    const moons = [[34,2.1],[46,2.9],[62,3.7],[80,5.2]].map(([r, s], k) => `<circle class="moon" cx="240" cy="78" r="3.2" fill="#eef0ff" style="--r:${r}px;animation-duration:${s}s;animation-delay:-${k*0.7}s"/>`).join('');
+    return `<svg viewBox="0 0 320 150" aria-hidden="true"><defs><clipPath id="pclip"><rect x="0" y="0" width="160" height="150"/></clipPath></defs>
+      <g clip-path="url(#pclip)">${lines}<line x1="0" y1="${vy}" x2="160" y2="${vy}" stroke="#aab0d8" stroke-dasharray="3 3"/><circle cx="${vx}" cy="${vy}" r="4" fill="#ffd66b"/></g>
+      <g class="b-jup"><circle cx="240" cy="78" r="20" fill="#d9a066"/><path d="M221 72 h38 M220 82 h40" stroke="#a5683a" stroke-width="4"/><ellipse cx="248" cy="86" rx="5" ry="3" fill="#b5562e"/></g>
+      <g class="b-moons">${moons}</g>
+      <text x="240" y="134" text-anchor="middle" font-family="Martian Mono, monospace" font-size="10" fill="#aab0d8">JUPITER · 1610</text></svg>`;
+  }
+  if (type === 'fade') return `<svg viewBox="0 0 320 150" aria-hidden="true">
+    <g class="b-fade"><path d="M160 34 C130 22 92 22 64 32 L64 122 C92 112 130 112 160 124 Z" fill="#f6eedd"/><path d="M160 34 C190 22 228 22 256 32 L256 122 C228 112 190 112 160 124 Z" fill="#e3d5b8"/>
+    <path d="M160 34 L160 124" stroke="#a8956f" stroke-width="2"/>
+    <g stroke="#c9761a" stroke-width="2" opacity=".8"><path d="M80 50 h60 M80 62 h56 M80 74 h60 M80 86 h50"/><path d="M180 50 h60 M184 62 h56 M180 74 h60 M190 86 h50"/></g>
+    <text x="110" y="112" font-family="Rozha One, serif" font-size="20" fill="#c9761a" text-anchor="middle">0</text><text x="210" y="112" font-family="Rozha One, serif" font-size="18" fill="#c9761a" text-anchor="middle">x</text></g>
+    <text class="b-q" style="animation-delay:1.8s" x="286" y="58" font-family="Rozha One, serif" font-size="34" fill="#aab0d8">?</text>
+    <text class="b-q" style="animation-delay:2.1s" x="26" y="92" font-family="Rozha One, serif" font-size="28" fill="#aab0d8">?</text></svg>`;
+  if (type === 'stuck') return `<svg viewBox="0 0 320 150" aria-hidden="true"><g font-family="Rozha One, Georgia, serif" font-size="58" fill="#f6eedd" text-anchor="middle">
+    ${['M','C','C','I','I'].map((l, k) => `<text class="b-rn" style="animation-delay:${k*0.12}s" x="${60 + k*50}" y="98">${l}</text>`).join('')}</g>
+    <text x="160" y="134" text-anchor="middle" font-family="Martian Mono, monospace" font-size="11" fill="#ff7d6e">NO PLACE VALUE · NO ZERO</text></svg>`;
+  return `<svg viewBox="0 0 320 150" aria-hidden="true">
+    <g font-family="Rozha One, Georgia, serif" font-size="30" fill="#f6eedd" text-anchor="middle">${[1,2,3,4,5,6,7,8,9,0].map((n, k) => `<text class="b-q" style="animation-delay:${k*0.12}s" x="${34 + (k%5)*63}" y="${k < 5 ? 64 : 116}">${n}</text>`).join('')}</g>
+    <circle class="b-spark" cx="20" cy="30" r="4" fill="#ffd66b"/><circle class="b-spark" style="animation-delay:.6s" cx="300" cy="40" r="4" fill="#36c2b1"/><circle class="b-spark" style="animation-delay:1.1s" cx="300" cy="130" r="5" fill="#f4a83c"/></svg>`;
+}
+
+/* ---------------- Book ---------------- */
+function tileState(i){ if (!S.done[i]) return 'locked'; if (fadedMode() && i >= relit) return 'grey'; return 'lit'; }
+function tilesHTML(flip){
+  return D.map((d, i) => { const st = tileState(i);
+    return `<li class="tile ${st}${flip === i ? ' flip' : ''}"><span class="t-n"><span class="t-ch">Ch. </span>${i+1}</span><b>${st === 'locked' ? '?' : d.chapter.t}</b></li>`; }).join('');
+}
+function updateBook(flip){
+  const n = S.done.filter(Boolean).length;
+  $('#bookCount').textContent = fadedMode() ? `Fading… relight it on domino 7` : `${n} of 7 chapters`;
+  $('#tiles').innerHTML = tilesHTML(flip);
+  const mini = document.getElementById('miniTiles'); if (mini) mini.innerHTML = tilesHTML(flip);
+  let last = -1; S.done.forEach((v, i) => { if (v) last = i; });
+  $('#bookLatest').innerHTML = last < 0 ? 'Solve a challenge to add your first chapter.' : `Latest chapter: <b>${D[last].chapter.t}</b>. ${D[last].chapter.d}`;
+}
+
+/* ---------------- Card ---------------- */
+function personHTML(p){
+  return `<div class="person">${portrait(LOOK[p.k])}<div><h4>${p.name}</h4><p class="dates">${p.dates}</p><p>${p.line}</p>${p.link ? `<a href="${p.link}" target="_blank" rel="noopener">${p.lt} ↗</a>` : ''}</div></div>`;
+}
+function renderWelcome(){
+  current = -1;
+  const card = $('#card');
+  card.innerHTML = `<p class="eyebrow">How to play</p><h2>Seven dominoes. One chain of ideas.</h2>
+    <div class="burst">${burstHTML('welcome')}</div>
+    <ol class="howto"><li>Push the glowing domino. Watch it crash into the next one.</li><li>A map pops up: follow the spark as the idea travels.</li><li>Read the story, meet the people, and solve the challenge.</li><li>Each challenge adds a chapter to the Book of Mathematics.</li></ol>
+    <div class="actions"><button class="btn" id="startBtn">Push domino 1</button></div>`;
+  $('#startBtn').addEventListener('click', () => { scrollToEl($('#stage')); setTimeout(() => onDomino(0), calm ? 0 : 450); });
+  updateRow();
+}
+function showCard(i, opts){
+  opts = opts || {};
+  current = i; const d = D[i]; const card = $('#card');
+  if (opts.stuck){
+    card.innerHTML = `<p class="eyebrow">Domino 5 of 7 · <span class="cent">${d.century}</span></p><h2>${d.gate.title}</h2>
+      <div class="burst">${burstHTML('stuck')}</div><div class="story"><p>${d.gate.text}</p></div>
+      <div class="challenge"><h3>Crack the code</h3><div id="chBody"></div></div>`;
+    renderQuiz($('#chBody'), d.gate.qs, () => { S.gate = true; save(); toast('The Roman wall cracks!'); chime(); scrollToEl($('#stage')); setTimeout(() => knock(4), calm ? 0 : 700); }, null, 'Push the domino');
+  } else {
+    card.innerHTML = `<div class="card-top"><div><p class="eyebrow">Domino ${i+1} of 7 · <span class="cent">${d.century}</span></p><h2>${d.title}</h2></div>
+        <button class="btn ghost small" id="mapBtn">${i === 6 ? 'See the whole chain' : 'See the route'}</button></div>
+      <div class="burst">${burstHTML(d.burst)}</div><p class="burst-cap">${d.burstCap}</p>
+      <div class="people">${d.people.map(personHTML).join('')}</div>
+      <div class="story">${d.story}</div>
+      ${d.why ? `<div class="why"><h3>Why it matters to the Book</h3>${d.why}</div>` : ''}
+      <div class="whoa"><span class="tag">Whoa!</span><p>${d.whoa}</p></div>
+      ${d.hist ? `<p class="hist"><b>Historians say:</b> ${d.hist}</p>` : ''}
+      ${d.toy ? `<div class="toy" id="toy"></div>` : ''}
+      <div class="challenge"><h3>${d.challenge.type === 'final' ? 'Relight the Book' : 'Challenge'}</h3><div id="chBody"></div></div>
+      <div id="earned"></div>`;
+    $('#mapBtn').addEventListener('click', () => openMap(i, false));
+    if (d.toy === 'place') mountPlace($('#toy'));
+    mountChallenge(i);
+    if (S.done[i]) showEarned(i, false);
+  }
+  card.classList.remove('enter'); void card.offsetWidth; card.classList.add('enter');
+  updateRow();
+}
+function mountChallenge(i){
+  const d = D[i], el = $('#chBody');
+  if (S.done[i]){ el.innerHTML = `<p class="solved">✓ Solved. This chapter is in your Book.</p>`; return; }
+  if (d.challenge.type === 'quiz') renderQuiz(el, d.challenge.qs, () => complete(i), null, 'Add the chapter to the Book');
+  else if (d.challenge.type === 'scale') renderScale(el, () => complete(i));
+  else renderFinal(el);
+}
+function renderQuiz(el, qs, onDone, onEach, doneLabel){
+  let k = 0;
+  function draw(){
+    const q = qs[k];
+    el.innerHTML = `<p class="qnum">${qs.length > 1 ? `Question ${k+1} of ${qs.length}` : 'One question'}</p><p class="qtext">${q.q}</p>
+      <div class="opts">${q.o.map((o, j) => `<button class="opt" data-j="${j}">${o}</button>`).join('')}</div><div class="feedback" aria-live="polite"></div><div class="actions"></div>`;
+    const fb = el.querySelector('.feedback'), acts = el.querySelector('.actions');
+    el.querySelectorAll('.opt').forEach(btn => btn.addEventListener('click', () => {
+      const j = +btn.dataset.j;
+      if (j === q.a){
+        btn.classList.add('right'); el.querySelectorAll('.opt').forEach(b => b.disabled = true); ping();
+        fb.innerHTML = `<span class="good">Yes!</span> ${q.ex}`;
+        if (onEach) onEach(k);
+        const last = k === qs.length - 1;
+        acts.innerHTML = `<button class="btn">${last ? (doneLabel || 'Continue') : 'Next question'}</button>`;
+        const nb = acts.querySelector('button'); nb.focus({preventScroll:true});
+        nb.addEventListener('click', () => { if (last) onDone(); else { k++; draw(); } });
+      } else {
+        btn.classList.add('wrong'); btn.disabled = true; buzz();
+        fb.innerHTML = `<span class="bad">Not quite.</span> Try another answer.`;
+      }
+    }));
+  }
+  draw();
+}
+function renderScale(el, onDone){
+  const Lb = [[60,88],[72,88],[66,76]];
+  const Rb = [[241,92],[253,92],[265,92],[277,92],[247,80],[259,80],[271,80],[253,68],[265,68],[259,56]];
+  el.innerHTML = `<p class="qtext">Al-Khwarizmi's puzzle: <span class="eq">x + 3 = 10</span>. The scale is balanced. How do you find x without tipping it?</p>
+    <svg class="scale-svg" viewBox="0 0 320 175" aria-label="A balance scale with x plus 3 blocks on the left and 10 blocks on the right">
+      <polygon points="160,68 142,160 178,160" fill="#2f3679"/><rect x="118" y="158" width="84" height="9" rx="4.5" fill="#2f3679"/>
+      <g class="beamg" id="beamg"><rect x="40" y="64" width="240" height="8" rx="4" fill="#f4a83c"/><circle cx="160" cy="68" r="6" fill="#ffd66b"/>
+        <path d="M56 72 L32 104 M56 72 L80 104 M264 72 L240 104 M264 72 L288 104" stroke="#aab0d8" stroke-width="1.5"/>
+        <rect x="28" y="104" width="56" height="5" rx="2.5" fill="#e3d5b8"/><rect x="236" y="104" width="56" height="5" rx="2.5" fill="#e3d5b8"/>
+        <rect x="32" y="80" width="24" height="24" rx="4" fill="#36c2b1"/><text id="xval" x="44" y="98" text-anchor="middle" font-family="Rozha One, serif" font-size="17" fill="#0d1130">x</text>
+        ${Lb.map(([x,y], j) => `<rect class="blk" id="l${j}" x="${x}" y="${y+4}" width="11" height="11" rx="2" fill="#f6eedd"/>`).join('')}
+        ${Rb.map(([x,y], j) => `<rect class="blk" id="r${j}" x="${x}" y="${y}" width="11" height="11" rx="2" fill="#f6eedd"/>`).join('')}
+      </g></svg>
+    <div class="opts">
+      <button class="opt" data-m="both">Take 3 blocks off both sides</button>
+      <button class="opt" data-m="left">Take 3 blocks off the left side only</button>
+      <button class="opt" data-m="add">Add 3 blocks to the right side</button>
+    </div><div class="feedback" aria-live="polite"></div><div class="actions"></div>`;
+  const beam = el.querySelector('#beamg'), fb = el.querySelector('.feedback'), acts = el.querySelector('.actions');
+  const tilt = deg => { beam.style.transform = `rotate(${deg}deg)`; };
+  const hide = ids => ids.forEach(id => { const b = el.querySelector('#' + id); b.style.opacity = 0; b.style.transform = 'translateY(-14px)'; });
+  const show = ids => ids.forEach(id => { const b = el.querySelector('#' + id); b.style.opacity = 1; b.style.transform = ''; });
+  let locked = false;
+  el.querySelectorAll('.opt').forEach(btn => btn.addEventListener('click', () => {
+    if (locked) return; const m = btn.dataset.m;
+    if (m === 'both'){
+      locked = true; btn.classList.add('right'); el.querySelectorAll('.opt').forEach(b => b.disabled = true);
+      hide(['l0','l1','l2','r7','r8','r9']); ping();
+      setTimeout(() => { el.querySelector('#xval').textContent = '7'; }, calm ? 0 : 700);
+      fb.innerHTML = `<span class="good">Balanced! x = 7.</span> Doing the same thing to both sides is the heart of al-jabr. It works for any unknown, every time.`;
+      acts.innerHTML = `<button class="btn">Add the chapter to the Book</button>`;
+      acts.querySelector('button').addEventListener('click', onDone);
+    } else {
+      locked = true; btn.classList.add('wrong'); buzz();
+      if (m === 'left'){ hide(['l0','l1','l2']); fb.innerHTML = `<span class="bad">The scale tips!</span> You took 3 from the left but not the right. Whatever you do to one side, do to the other.`; }
+      else fb.innerHTML = `<span class="bad">The scale tips!</span> Now the right side holds 13, but the left still holds x + 3. Keep both sides equal.`;
+      tilt(9);
+      setTimeout(() => { tilt(0); show(['l0','l1','l2']); btn.disabled = true; locked = false; }, calm ? 900 : 1700);
+    }
+  }));
+}
+function renderFinal(el){
+  relit = 0; updateBook();
+  el.innerHTML = `<p class="qnum">Each right answer relights a page of the Book</p>
+    <div class="final-book"><ol class="tiles" id="miniTiles">${tilesHTML()}</ol></div><div id="finalQ"></div>`;
+  renderQuiz($('#finalQ'), FINAL, finishGame, k => {
+    const next = Math.round((k + 1) * 6 / FINAL.length);
+    if (next > relit){ relit = next; updateBook(relit - 1); chime(); }
+  }, 'Relight the last page');
+}
+function complete(i){
+  S.done[i] = true; save();
+  updateBook(i);
+  chime(); toast(`Chapter ${i+1} added: ${D[i].chapter.t}`);
+  $('#chBody').innerHTML = `<p class="solved">✓ Solved. This chapter is in your Book.</p>`;
+  showEarned(i, true);
+  updateRow();
+}
+function showEarned(i, isNew){
+  const box = $('#earned'); if (!box) return;
+  const nextReady = i < 6 && !S.complete && S.fallen === i + 1;
+  const canGo = i < 6 && S.fallen > i + 1;
+  let btn = '';
+  if (nextReady) btn = `<button class="btn" id="nextBtn">Push domino ${i+2}</button>`;
+  else if (canGo) btn = `<button class="btn ghost" id="nextBtn">Go to domino ${i+2}</button>`;
+  else if (i === 6 && S.complete) btn = `<button class="btn ghost" id="nextBtn">Play again</button>`;
+  box.className = 'earned';
+  box.innerHTML = `<div><p class="eyebrow">Chapter ${i+1} is in your Book</p><p class="et">${D[i].chapter.t}</p></div>${btn}`;
+  const nb = $('#nextBtn');
+  if (nb) nb.addEventListener('click', () => {
+    if (nextReady){ scrollToEl($('#stage')); focusDomino(i+1); setTimeout(() => onDomino(i+1), calm ? 0 : 650); }
+    else if (canGo){ showCard(i+1); scrollToEl($('#card')); }
+    else resetAll();
+  });
+  if (isNew && !calm) box.animate([{transform:'scale(.95)',opacity:0},{transform:'scale(1)',opacity:1}], {duration:450, easing:'cubic-bezier(.2,1.4,.4,1)'});
+}
+
+/* ---------------- Place-value toy ---------------- */
+const ONES = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const TENS = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+function words(n){ if (n < 20) return ONES[n]; if (n < 100) return TENS[Math.floor(n/10)] + (n % 10 ? '-' + ONES[n % 10] : ''); const r = n % 100; return ONES[Math.floor(n/100)] + ' hundred' + (r ? ' ' + words(r) : ''); }
+function toRoman(n){ if (n === 0) return ''; const map = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']]; let s = ''; for (const [v, r] of map){ while (n >= v){ s += r; n -= v; } } return s; }
+function mountPlace(el){
+  const dg = [1,0,5], names = ['hundreds','tens','ones'];
+  el.innerHTML = `<p class="toy-title">Brahmagupta's place-value machine</p><p style="margin:0;color:var(--muted);font-size:.9rem">Tap a box to change its digit. Watch what a zero does to the number.</p>
+    <div class="pv-slots">${names.map((n, j) => `<div class="pv"><button id="pv${j}" aria-label="${n} digit">${dg[j]}</button><span>${n}</span></div>`).join('')}</div><p class="pv-out" id="pvOut"></p>`;
+  const out = el.querySelector('#pvOut');
+  const upd = () => {
+    names.forEach((_, j) => { const b = el.querySelector('#pv' + j); b.textContent = dg[j]; b.classList.toggle('zero', dg[j] === 0); });
+    const n = dg[0]*100 + dg[1]*10 + dg[2]; const r = toRoman(n);
+    out.innerHTML = `<b>${n}</b> · ${words(n)} · Romans wrote <b>${r || 'nothing at all'}</b>${r ? '' : '. They had no symbol for zero!'}`;
+  };
+  names.forEach((_, j) => el.querySelector('#pv' + j).addEventListener('click', () => { dg[j] = (dg[j] + 1) % 10; tone(500 + dg[j]*60, .1, 'triangle', .2); upd(); }));
+  upd();
+}
+
+/* ---------------- Finale + reset ---------------- */
+async function finishGame(){
+  const token = runToken;
+  S.done[6] = true; S.complete = true; relit = 7; save();
+  updateBook(6); chime(); setTimeout(chime, 350);
+  $('#chBody').innerHTML = `<p class="solved">✓ Every page is lit. You're a Keeper of Zero!</p>`;
+  showEarned(6, true);
+  $('#badgeWrap').hidden = false; $('#badgeClose').focus({preventScroll:true});
+  const row = $('#row'); row.classList.add('rewinding');
+  for (let i = 6; i >= 0; i--){ if (token !== runToken) return; doms[i].classList.remove('fallen'); doms[i].classList.add('done'); tone(400 + (6 - i) * 70, .14, 'triangle', .22); await wait(140); }
+  await wait(800); if (token !== runToken) return;
+  row.classList.remove('rewinding'); updateRow();
+}
+function resetAll(){
+  runToken++; busy = false; relit = 0;
+  S = fresh(); save();
+  $('#badgeWrap').hidden = true; $('#mapModal').hidden = true;
+  buildTimeline(); buildMap();
+  $('#row').classList.remove('rewinding');
+  doms.forEach(d => d.classList.remove('fallen','done','pushing','bumped','stuck','nudge'));
+  updateBook(); renderWelcome();
+  focusDomino(0);
+  window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0;
+  requestAnimationFrame(() => window.scrollTo(0, 0));
+  toast('Fresh start! Push domino 1.');
+}
+
+/* ---------------- Init ---------------- */
+setCalm(calm); setSound(soundOn);
+buildTimeline(); buildRow(); buildMap();
+for (let i = 0; i < S.fallen; i++){ lightTimeline(i, false); if (i < 6){ pathsFor(i).forEach(p => p.dataset.shown = '1'); } }
+if (S.fallen >= 6) showArc(false);
+if (S.complete) relit = 7;
+updateBook();
+if (S.fallen === 0) renderWelcome(); else showCard(S.fallen - 1);
+updateRow();
+// Reveal stored routes once the map has been measured (on first open).
+const restoreRoutes = () => { for (let i = 0; i < S.fallen; i++) if (i !== animIdx) revealRoute(i); };
+const origMeasure = measureMap;
+measureMap = function(){ const first = !mapBuilt; origMeasure(); if (first) restoreRoutes(); };
+
+$('#soundBtn').addEventListener('click', () => { unlockAudio(); setSound(!soundOn); savePrefs(); if (soundOn) chime(); });
+$('#mapGo').addEventListener('click', closeMap);
+$('#mapX').addEventListener('click', closeMap);
+$('#mapModal').addEventListener('click', e => { if (e.target.id === 'mapModal') closeMap(); });
+let resetArmed = false, resetT;
+$('#resetBtn').addEventListener('click', e => {
+  if (!resetArmed){ resetArmed = true; e.target.textContent = 'Tap again to erase progress'; clearTimeout(resetT); resetT = setTimeout(() => { resetArmed = false; e.target.textContent = 'Start over'; }, 3500); return; }
+  resetArmed = false; e.target.textContent = 'Start over'; resetAll();
+});
+$('#badgeClose').addEventListener('click', () => { $('#badgeWrap').hidden = true; });
+$('#badgeAgain').addEventListener('click', resetAll);
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ if (!$('#badgeWrap').hidden) $('#badgeWrap').hidden = true; else closeMap(); } });
+})();
+</script>
+
+</body></html>
